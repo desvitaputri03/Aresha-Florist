@@ -444,6 +444,9 @@
                 </a>
 
                 <div class="navbar-nav ms-auto d-flex align-items-center">
+                    <a class="nav-link" href="<?php echo e(route('admin.settings.store.index')); ?>">
+                        <i class="fas fa-cog me-1"></i>Pengaturan Toko
+                    </a>
                     <a class="nav-link" href="<?php echo e(url('/')); ?>" target="_blank">
                         <i class="fas fa-external-link-alt me-1"></i>Lihat Website
                     </a>

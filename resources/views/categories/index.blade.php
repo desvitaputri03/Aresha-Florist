@@ -1,6 +1,6 @@
 @extends('layouts.store')
 
-@section('title', 'Kategori Produk')
+@section('title', 'Kategori Karangan Bunga')
 
 @section('content')
 <!-- Hero Section -->
@@ -10,17 +10,17 @@
             <div class="col-lg-8 mx-auto text-center">
                 <div class="hero-content">
                     <h1 class="display-4 mb-4 fw-bold text-white">
-                        <i class="fas fa-tags me-3"></i>Kategori Produk
+                        <i class="fas fa-tags me-3"></i>Kategori Karangan Bunga
                     </h1>
                     <p class="lead mb-4 text-white" style="max-width: 600px; margin: 0 auto;">
-                        Jelajahi kategori untuk menemukan rangkaian bunga yang tepat
+                        Jelajahi kategori untuk menemukan karangan bunga yang tepat
                     </p>
                     <div class="d-flex gap-3 justify-content-center flex-wrap">
                         <a href="#categories" class="btn-accent">
                             <i class="fas fa-eye me-2"></i>Lihat Kategori
                         </a>
                         <a href="{{ route('products.index') }}" class="btn-accent-outline">
-                            <i class="fas fa-shopping-bag me-2"></i>Lihat Semua Produk
+                            <i class="fas fa-shopping-bag me-2"></i>Lihat Semua Karangan Bunga
                         </a>
                     </div>
                 </div>
@@ -42,7 +42,7 @@
             </div>
             <div class="col-md-6 text-md-end">
                 <a href="{{ route('products.index') }}" class="btn btn-outline-primary">
-                    <i class="fas fa-list me-2"></i>Lihat Semua Produk
+                    <i class="fas fa-list me-2"></i>Lihat Semua Karangan Bunga
                 </a>
             </div>
         </div>
@@ -57,7 +57,7 @@
             <div class="col-lg-3 col-md-6 category-card" data-name="{{ strtolower($category->nama_kategori ?? $category->name) }}">
                 <div class="product-card fade-in-up">
                     <div class="position-relative">
-                        <img src="https://images.unsplash.com/photo-1509043759401-136742328bb3?q=80&w=900&auto=format&fit=crop" alt="{{ $category->nama_kategori ?? $category->name }}" class="img-fluid">
+                        <img src="https://via.placeholder.com/900x600?text=Kategori+Karangan+Bunga+Aresha" alt="{{ $category->nama_kategori ?? $category->name }}" class="img-fluid">
                         <div class="product-badge">Kategori</div>
                     </div>
                     <div class="p-4">
@@ -65,7 +65,7 @@
                         <p class="text-muted mb-3">{{ Str::limit($category->deskripsi ?? $category->description, 80) }}</p>
                         <div class="d-flex justify-content-between align-items-center">
                             <a href="{{ route('products.index', ['category' => $category->id]) }}" class="btn-accent btn-sm">
-                                <i class="fas fa-eye me-1"></i>Lihat Produk
+                                <i class="fas fa-eye me-1"></i>Lihat Karangan Bunga
                             </a>
                             @if(!empty($category->slug))
                                 <small class="text-muted">/{{ $category->slug }}</small>

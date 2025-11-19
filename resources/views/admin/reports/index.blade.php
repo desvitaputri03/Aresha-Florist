@@ -36,19 +36,19 @@
             <tbody>
                 <tr>
                     <td>Total Pesanan</td>
-                    <td>120</td>
+                    <td>{{ number_format($totalOrders, 0, ',', '.') }}</td>
                 </tr>
                 <tr>
                     <td>Total Pendapatan</td>
-                    <td>Rp 25.000.000</td>
+                    <td>Rp{{ number_format($totalRevenue, 0, ',', '.') }}</td>
                 </tr>
                 <tr>
                     <td>Produk Terlaris</td>
-                    <td>Bouquet Mawar Merah</td>
+                    <td>{{ $topSellingProduct ? $topSellingProduct->product->name . ' (' . $topSellingProduct->total_quantity_sold . 'x)' : 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td>Pelanggan Aktif</td>
-                    <td>45</td>
+                    <td>{{ number_format($activeCustomers, 0, ',', '.') }}</td>
                 </tr>
             </tbody>
         </table>
@@ -62,10 +62,10 @@ const ctx = document.getElementById('ordersChart').getContext('2d');
 const ordersChart = new Chart(ctx, {
     type: 'bar',
     data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
+        labels: @json($labels),
         datasets: [{
-            label: 'Pesanan',
-            data: [10, 15, 20, 18, 25, 30, 28, 22, 19, 24, 27, 35],
+            label: 'Penjualan Bulanan',
+            data: @json($data),
             backgroundColor: 'rgba(233, 109, 143, 0.7)',
             borderColor: 'rgba(233, 109, 143, 1)',
             borderWidth: 2,

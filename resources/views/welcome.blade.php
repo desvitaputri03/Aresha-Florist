@@ -1,6 +1,6 @@
 @extends('layouts.store')
 
-@section('title', 'Aresha Florist')
+@section('title', 'Karangan Bunga Padang | Aresha Florist')
 
 <style>
 /* Hero Section Styles */
@@ -19,7 +19,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url('{{ asset('images/hero_tulips_sunset.jpg') }}'); /* Updated hero background image */
+    background-image: url('{{ asset('images/are.jpg') }}'); /* Changed hero background image to are.jpg */
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -163,7 +163,7 @@
                         <a href="{{ route('products.index') }}" class="btn btn-primary btn-lg me-3">
                             Lihat Koleksi
                         </a>
-                        <a href="#contact" class="btn btn-outline-light btn-lg">
+                        <a href="https://wa.link/sylqcm" class="btn btn-outline-light btn-lg">
                             Hubungi Kami
                         </a>
                     </div>
@@ -178,7 +178,7 @@
     <div class="container">
         <div class="text-center mb-5">
             <h2 class="display-5 fw-bold mb-3">Koleksi Unggulan</h2>
-            <p class="lead text-muted">Temukan rangkaian bunga terindah dan terpopuler dari kami</p>
+            <p class="lead text-muted">Temukan karangan bunga terindah dan terpopuler dari kami</p>
         </div>
 
         <div class="row g-4">
@@ -191,14 +191,16 @@
                                  alt="{{ $product->name }}"
                                  class="img-fluid">
                         @else
-                            <img src="https://images.unsplash.com/photo-1518895949257-7621c3c786d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                            <img src="https://via.placeholder.com/500x500?text=Karangan+Bunga+Aresha"
                                  alt="{{ $product->name }}"
                                  class="img-fluid">
                         @endif
-                        @if($product->harga_diskon)
+                        @if($product->harga_diskon && $product->harga > 0)
                             <div class="product-badge">
                                 -{{ round((($product->harga - $product->harga_diskon) / $product->harga) * 100) }}%
                             </div>
+                        @elseif ($product->harga_diskon && $product->harga == 0)
+                            <div class="product-badge">Diskon</div> {{-- Tampilkan badge 'Diskon' generik jika diskon ada tapi harga nol --}}
                         @else
                             <div class="product-badge">New</div>
                         @endif
@@ -262,8 +264,8 @@
                          style="width: 80px; height: 80px;">
                         <i class="fas fa-leaf fs-3"></i>
                     </div>
-                    <h5 class="fw-bold mb-2">Bunga Segar</h5>
-                    <p class="text-muted">Bunga segar langsung dari kebun dengan kualitas terbaik</p>
+                    <h5 class="fw-bold mb-2">Papan Berkualitas</h5>
+                    <p class="text-muted">Produk berkualitas tinggi dengan desain terbaik</p>
                 </div>
             </div>
 
@@ -297,7 +299,7 @@
     <div class="container text-center text-white">
         <div class="row justify-content-center">
             <div class="col-lg-8">
-                <h2 class="display-5 fw-bold mb-4">Siap Memberi Kebahagiaan?</h2>
+                <h2 class="display-5 fw-bold mb-4">Siap Mengucapkan Selamat?</h2>
                 <p class="lead mb-4">
                     Kami membantu Anda mengekspresikan perasaan dengan karangan bunga yang sempurna.
                     Dari momen romantis hingga perayaan, kami siap melayani Anda.
@@ -330,7 +332,7 @@
                         <div class="mb-3">
                             <i class="fas fa-quote-left text-primary fs-1"></i>
                         </div>
-                        <p class="mb-4">"Karangan bunga yang sangat indah dan segar! Pelayanan cepat dan ramah. Sangat direkomendasikan!"</p>
+                        <p class="mb-4">"Karangan bunga yang sangat indah dan berkualitas! Pelayanan cepat dan ramah. Sangat direkomendasikan!"</p>
                         <div class="d-flex align-items-center justify-content-center">
                             <img src="https://images.unsplash.com/photo-1494790108755-2616b612b786?q=80&w=100&auto=format&fit=crop"
                                  alt="Customer"
@@ -351,7 +353,7 @@
                         <div class="mb-3">
                             <i class="fas fa-quote-left text-primary fs-1"></i>
                         </div>
-                        <p class="mb-4">"Pengiriman tepat waktu dan karangan bunga masih segar. Sangat puas dengan pelayanannya!"</p>
+                        <p class="mb-4">"Pengiriman tepat waktu dan karangan bunga berkualitas. Sangat puas dengan pelayanannya!"</p>
                         <div class="d-flex align-items-center justify-content-center">
                             <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=100&auto=format&fit=crop"
                                  alt="Customer"

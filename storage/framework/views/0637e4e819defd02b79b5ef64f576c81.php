@@ -158,8 +158,9 @@ unset($__errorArgs, $__bag); ?>
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <label for="catatan" class="form-label">Catatan Pesanan</label>
-                                <textarea class="form-control <?php $__errorArgs = ['catatan'];
+                                <label for="delivery_date" class="form-label">Tanggal Pengiriman <span class="text-danger">*</span></label>
+                                <input type="date" 
+                                       class="form-control <?php $__errorArgs = ['delivery_date'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -167,11 +168,91 @@ $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>" 
-                                          id="catatan" 
-                                          name="catatan" 
-                                          rows="3" 
-                                          placeholder="Catatan khusus untuk pesanan (opsional)"><?php echo e(old('catatan')); ?></textarea>
-                                <?php $__errorArgs = ['catatan'];
+                                       id="delivery_date" 
+                                       name="delivery_date" 
+                                       value="<?php echo e(old('delivery_date')); ?>"
+                                       required>
+                                <?php $__errorArgs = ['delivery_date'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                    <div class="invalid-feedback"><?php echo e($message); ?></div>
+                                <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                                <small class="form-text text-muted">Pilih tanggal barang diharapkan tiba di tujuan.</small>
+                            </div>
+                            <div class="mb-3">
+                                <label for="recipient_name" class="form-label">Untuk Siapa <span class="text-danger">*</span></label>
+                                <input type="text" 
+                                       class="form-control <?php $__errorArgs = ['recipient_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" 
+                                       id="recipient_name" 
+                                       name="recipient_name" 
+                                       value="<?php echo e(old('recipient_name')); ?>" 
+                                       placeholder="Nama penerima pesanan (mis: Ibu Budi)"
+                                       required>
+                                <?php $__errorArgs = ['recipient_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                    <div class="invalid-feedback"><?php echo e($message); ?></div>
+                                <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                            </div>
+                            <div class="mb-3">
+                                <label for="event_type" class="form-label">Jenis Acara <span class="text-danger">*</span></label>
+                                <input type="text" 
+                                       class="form-control <?php $__errorArgs = ['event_type'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" 
+                                       id="event_type" 
+                                       name="event_type" 
+                                       value="<?php echo e(old('event_type')); ?>" 
+                                       placeholder="Contoh: Wisuda, Khatam, Pembukaan Toko, dll."
+                                       required>
+                                <?php $__errorArgs = ['event_type'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                    <div class="invalid-feedback"><?php echo e($message); ?></div>
+                                <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                            </div>
+                            <div class="mb-3">
+                                <label for="custom_message" class="form-label">Kata-kata Pesanan (Khusus Papan Bunga) <span class="text-danger">*</span></label>
+                                <textarea class="form-control <?php $__errorArgs = ['custom_message'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" 
+                                          id="custom_message" 
+                                          name="custom_message" 
+                                          rows="5" 
+                                          placeholder="Isi pesan khusus untuk papan bunga di sini."><?php echo e(old('custom_message')); ?></textarea>
+                                <?php $__errorArgs = ['custom_message'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -259,16 +340,16 @@ unset($__errorArgs, $__bag); ?>
                             
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Subtotal:</span>
-                                <span>Rp<?php echo e(number_format($total, 0, ',', '.')); ?></span>
+                                <span id="subtotal-display">Rp<?php echo e(number_format($total, 0, ',', '.')); ?></span>
                             </div>
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Ongkir:</span>
-                                <span class="text-success">Gratis</span>
+                                <span class="text-success" id="shipping-cost-display">Rp0</span>
                             </div>
                             <hr>
                             <div class="d-flex justify-content-between mb-4">
                                 <span class="h5 mb-0">Total:</span>
-                                <span class="h5 text-primary fw-bold mb-0">Rp<?php echo e(number_format($total, 0, ',', '.')); ?></span>
+                                <span class="h5 text-primary fw-bold mb-0" id="grand-total-display">Rp<?php echo e(number_format($total, 0, ',', '.')); ?></span>
                             </div>
                             
                             <button type="submit" class="btn btn-primary btn-lg w-100">
@@ -286,6 +367,13 @@ unset($__errorArgs, $__bag); ?>
     </div>
 </section>
 
+<?php
+    $googleMapsApiKey = \App\Models\Setting::getSetting('google_maps_api_key', '');
+    $costPerKmOutsidePadang = \App\Models\Setting::getSetting('cost_per_km_outside_padang', 2000);
+    $originAddress = 'Komplek kencana blok B 11 kel . gurun laweh kec .nanggalo Padang, Koto Padang, Sumatera Barat, Indonesia 25165';
+?>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=<?php echo e($googleMapsApiKey); ?>&libraries=places&callback=initMap" async defer></script>
 <script>
 // Toggle payment method info
 document.addEventListener('DOMContentLoaded', function() {
@@ -313,6 +401,99 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initial state based on previously selected value (if any)
     togglePaymentInfo();
+
+    const alamatInput = document.getElementById('alamat');
+    const calculatedDistanceKmInput = document.getElementById('calculated_distance_km');
+    const alamatNotPadangInput = document.getElementById('alamat_not_padang');
+    const shippingCostDisplay = document.getElementById('shipping-cost-display');
+    const grandTotalDisplay = document.getElementById('grand-total-display');
+    const subtotal = <?php echo e($total); ?>;
+    const costPerKm = parseFloat('<?php echo e($costPerKmOutsidePadang); ?>');
+    const originAddress = '<?php echo e($originAddress); ?>';
+
+    let geocoder;
+    let distanceMatrixService;
+
+    // Function to initialize Google Maps services
+    window.initMap = function() {
+        geocoder = new google.maps.Geocoder();
+        distanceMatrixService = new google.maps.DistanceMatrixService();
+        // Initial calculation if address is already filled (e.g., old input)
+        if (alamatInput.value) {
+            calculateShipping();
+        }
+    };
+
+    async function calculateShipping() {
+        const destinationAddress = alamatInput.value;
+        let shippingCost = 0;
+        let distanceKm = 0;
+        let isPadang = false;
+
+        // Check if destination address contains 'Padang' (case-insensitive)
+        if (destinationAddress.toLowerCase().includes('padang')) {
+            isPadang = true;
+            shippingCost = 0;
+            distanceKm = 0;
+            alamatNotPadangInput.value = 'false';
+            updateDisplays(shippingCost, distanceKm);
+            return;
+        }
+
+        // If not Padang, set alamat_not_padang to true for backend validation
+        alamatNotPadangInput.value = 'true';
+
+        if (!destinationAddress) {
+            updateDisplays(0, 0);
+            return;
+        }
+
+        try {
+            const response = await distanceMatrixService.getDistanceMatrix({
+                origins: [originAddress],
+                destinations: [destinationAddress],
+                travelMode: google.maps.TravelMode.DRIVING,
+                unitSystem: google.maps.UnitSystem.METRIC,
+            });
+
+            const element = response.rows[0].elements[0];
+
+            if (element.status === 'OK') {
+                // Distance in meters, convert to kilometers
+                distanceKm = element.distance.value / 1000;
+                shippingCost = distanceKm * costPerKm;
+            } else {
+                console.error('Google Maps Distance Matrix Error:', element.status);
+                // Fallback or error handling for when API call fails or address is invalid
+                // For now, set a default high shipping cost or inform user
+                shippingCost = 0; // Set to 0 if we can't calculate, or a default value like 50km * costPerKm
+                distanceKm = 0; // No distance if API fails
+                alert('Tidak dapat menghitung biaya pengiriman untuk alamat ini. Pastikan alamat lengkap dan benar.');
+            }
+        } catch (error) {
+            console.error('Error calculating shipping cost:', error);
+            shippingCost = 0; // Default to 0 on error
+            distanceKm = 0;
+            alert('Terjadi kesalahan saat menghitung ongkir. Pastikan Google Maps API Key Anda valid dan terkonfigurasi dengan benar.');
+        }
+        updateDisplays(shippingCost, distanceKm);
+    }
+
+    function updateDisplays(shippingCost, distanceKm) {
+        const grandTotal = subtotal + shippingCost;
+        shippingCostDisplay.textContent = 'Rp' + Math.round(shippingCost).toLocaleString('id-ID');
+        grandTotalDisplay.textContent = 'Rp' + Math.round(grandTotal).toLocaleString('id-ID');
+        calculatedDistanceKmInput.value = distanceKm.toFixed(2); // Store distance with 2 decimal places
+    }
+
+    // Trigger calculation when address changes (with a debounce to avoid too many API calls)
+    let debounceTimeout;
+    alamatInput.addEventListener('input', function() {
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(() => {
+            calculateShipping();
+        }, 1000); // Wait 1 second after last input to calculate
+    });
 });
 </script>
 <?php $__env->stopSection(); ?>

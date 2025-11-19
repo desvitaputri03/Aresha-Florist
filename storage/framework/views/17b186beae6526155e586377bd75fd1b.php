@@ -1,5 +1,3 @@
-
-
 <?php $__env->startSection('title', 'Konfirmasi Pembayaran - Aresha Florist'); ?>
 
 <?php $__env->startSection('content'); ?>
@@ -35,12 +33,7 @@
                         </div>
                     <?php endif; ?>
 
-                    <p>Pesanan Anda <strong>#<?php echo e($order->order_number); ?></strong> menunggu pembayaran. Mohon transfer sebesar <strong>Rp<?php echo e(number_format($order->grand_total, 0, ',', '.')); ?></strong> ke rekening berikut:</p>
-                    <div class="alert alert-info text-center">
-                        <p class="mb-1"><strong>BANK BCA</strong></p>
-                        <p class="mb-1">Nomor Rekening: <strong>1234567890</strong></p>
-                        <p class="mb-0">Atas Nama: <strong>Aresha Florist</strong></p>
-                    </div>
+                    <p>Pesanan Anda <strong>#<?php echo e($order->order_number); ?></strong> menunggu pembayaran. Mohon transfer sebesar <strong>Rp<?php echo e(number_format($order->grand_total, 0, ',', '.')); ?></strong> ke rekening <strong><?php echo e($bankName); ?></strong> Nomor: <strong><?php echo e($bankAccountNumber); ?></strong> a.n. Aresha Florist.</p>
 
                     <p class="mt-4">Setelah melakukan transfer, silakan unggah bukti pembayaran Anda di bawah ini:</p>
 
@@ -48,7 +41,7 @@
                         <?php echo csrf_field(); ?>
                         <div class="mb-3">
                             <label for="proof_of_transfer_image" class="form-label">Unggah Bukti Transfer <span class="text-danger">*</span></label>
-                            <input type="file" 
+                            <input type="file"
                                    class="form-control <?php $__errorArgs = ['proof_of_transfer_image'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -56,9 +49,9 @@ if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>" 
-                                   id="proof_of_transfer_image" 
-                                   name="proof_of_transfer_image" 
+unset($__errorArgs, $__bag); ?>"
+                                   id="proof_of_transfer_image"
+                                   name="proof_of_transfer_image"
                                    accept="image/*" required>
                             <?php $__errorArgs = ['proof_of_transfer_image'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
@@ -82,6 +75,8 @@ unset($__errorArgs, $__bag); ?>
     </div>
 </div>
 <?php $__env->stopSection(); ?>
+
+
 
 
 

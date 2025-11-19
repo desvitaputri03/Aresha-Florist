@@ -1,4 +1,4 @@
-<?php $__env->startSection('title', $product->name . ' - Aresha Florist'); ?>
+<?php $__env->startSection('title', $product->name . ' | Karangan Bunga Padang'); ?>
 
 <?php $__env->startSection('content'); ?>
 <!-- Breadcrumb -->
@@ -6,7 +6,7 @@
     <div class="container">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="<?php echo e(url('/')); ?>">Beranda</a></li>
-            <li class="breadcrumb-item"><a href="<?php echo e(route('products.index')); ?>">Produk</a></li>
+            <li class="breadcrumb-item"><a href="<?php echo e(route('products.index')); ?>">Karangan Bunga</a></li>
             <li class="breadcrumb-item active" aria-current="page"><?php echo e($product->name); ?></li>
         </ol>
     </div>
@@ -24,7 +24,7 @@
                              alt="<?php echo e($product->name); ?>"
                              class="img-fluid rounded shadow-lg">
                     <?php else: ?>
-                        <img src="https://images.unsplash.com/photo-1518895949257-7621c3c786d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                        <img src="https://via.placeholder.com/800x600?text=Karangan+Bunga+Aresha"
                              alt="<?php echo e($product->name); ?>"
                              class="img-fluid rounded shadow-lg">
                     <?php endif; ?>
@@ -148,11 +148,11 @@
                         <?php endif; ?>
 
                         <div class="d-flex gap-2">
-                            <a href="tel:+622000000000" class="btn btn-outline-primary">
+                            <a href="https://wa.link/sylqcm" class="btn btn-outline-primary">
                                 <i class="fas fa-phone me-2"></i>Hubungi Kami
                             </a>
                             <a href="<?php echo e(route('products.index')); ?>" class="btn btn-outline-secondary">
-                                <i class="fas fa-arrow-left me-2"></i>Kembali ke Produk
+                                <i class="fas fa-arrow-left me-2"></i>Kembali ke Karangan Bunga
                             </a>
                         </div>
                     </div>
@@ -167,8 +167,8 @@
 <section class="py-5 bg-light">
     <div class="container">
         <div class="text-center mb-5">
-            <h2 class="display-5 fw-bold mb-3">Produk Terkait</h2>
-            <p class="lead text-muted">Produk lain dalam kategori yang sama</p>
+            <h2 class="display-5 fw-bold mb-3">Karangan Bunga Serupa</h2>
+            <p class="lead text-muted">Karangan bunga lain dalam kategori yang sama</p>
         </div>
 
         <div class="row g-4">
@@ -181,7 +181,7 @@
                                  alt="<?php echo e($relatedProduct->name); ?>"
                                  class="img-fluid">
                         <?php else: ?>
-                            <img src="https://images.unsplash.com/photo-1518895949257-7621c3c786d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                            <img src="https://via.placeholder.com/500x500?text=Karangan+Bunga+Aresha"
                                  alt="<?php echo e($relatedProduct->name); ?>"
                                  class="img-fluid">
                         <?php endif; ?>

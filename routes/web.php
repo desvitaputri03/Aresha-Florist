@@ -61,6 +61,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('reports/cetak/pdf', [\App\Http\Controllers\Admin\ReportController::class, 'pdf'])->name('reports.pdf');
     Route::patch('orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.update-status');
     Route::get('orders-statistics', [AdminOrderController::class, 'statistics'])->name('orders.statistics');
+
+    // Store Settings
+    Route::get('settings/store', [\App\Http\Controllers\Admin\StoreSettingController::class, 'index'])->name('settings.store.index');
+    Route::put('settings/store', [\App\Http\Controllers\Admin\StoreSettingController::class, 'update'])->name('settings.store.update');
 });
 
 // Simple auth routes (login/logout) for admin access

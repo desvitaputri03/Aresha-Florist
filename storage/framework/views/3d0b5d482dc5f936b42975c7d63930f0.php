@@ -193,7 +193,7 @@
                                  alt="<?php echo e($product->nama_produk); ?>"
                                  class="img-fluid">
                         <?php else: ?>
-                            <img src="https://images.unsplash.com/photo-1518895949257-7621c3c786d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                            <img src="https://via.placeholder.com/500x500?text=Karangan+Bunga+Aresha"
                                  alt="<?php echo e($product->nama_produk); ?>"
                                  class="img-fluid">
                         <?php endif; ?>

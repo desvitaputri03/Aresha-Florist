@@ -15,6 +15,15 @@
         <h5 class="mb-0">Form Edit Produk</h5>
     </div>
     <div class="card-body">
+        @if ($errors->any())
+            <div class="alert alert-danger mb-4">
+                <ul class="mb-0">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
         <form action="{{ route('admin.products.update', $product->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
@@ -39,7 +48,7 @@
                         <textarea class="form-control @error('deskripsi') is-invalid @enderror" 
                                   id="deskripsi" 
                                   name="deskripsi" 
-                                  rows="4">{{ old('deskripsi', $product->deskripsi) }}</textarea>
+                                  rows="4">{{ old('deskripsi', $product->deskripsi ?? '') }}</textarea>
                         @error('deskripsi')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -55,7 +64,7 @@
                                            class="form-control @error('harga') is-invalid @enderror" 
                                            id="harga" 
                                            name="harga" 
-                                           value="{{ old('harga', $product->harga) }}" 
+                                           value="{{ (int) old('harga', $product->harga) }}" 
                                            min="0" 
                                            required>
                                 </div>
@@ -73,7 +82,7 @@
                                            class="form-control @error('harga_diskon') is-invalid @enderror" 
                                            id="harga_diskon" 
                                            name="harga_diskon" 
-                                           value="{{ old('harga_diskon', $product->harga_diskon) }}" 
+                                           value="{{ (int) old('harga_diskon', $product->harga_diskon) }}" 
                                            min="0">
                                 </div>
                                 @error('harga_diskon')
@@ -96,7 +105,7 @@
                                     @foreach($categories as $category)
                                         <option value="{{ $category->id }}" 
                                                 {{ old('id_kategori', $product->id_kategori) == $category->id ? 'selected' : '' }}>
-                                            {{ $category->nama_kategori }}
+                                            {{ $category->name }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -168,35 +177,24 @@
                         <small class="form-text text-muted d-block">Centang jika produk ini dapat digabungkan dengan produk lain.</small>
                     </div>
 
-                    <div class="mb-3" id="combinedPriceMultiplierField" style="{{ old('is_combinable', $product->is_combinable) ? '' : 'display: none;' }}">
-                        <label for="combined_price_multiplier" class="form-label">Pengali Harga Gabungan</label>
+                    <div class="mb-3" id="combinableMultiplierField" style="{{ old('is_combinable', $product->is_combinable) ? '' : 'display: none;' }}">
+                        <label for="combinable_multiplier" class="form-label">Pengali Papan Gabungan</label>
                         <div class="input-group">
                             <input type="number" 
-                                   class="form-control @error('combined_price_multiplier') is-invalid @enderror" 
-                                   id="combined_price_multiplier" 
-                                   name="combined_price_multiplier" 
-                                   value="{{ old('combined_price_multiplier', $product->combined_price_multiplier) }}" 
-                                   step="0.01" 
-                                   min="0.01" 
-                                   max="10.00">
+                                   class="form-control @error('combinable_multiplier') is-invalid @enderror" 
+                                   id="combinable_multiplier" 
+                                   name="combinable_multiplier" 
+                                   value="{{ (int) old('combinable_multiplier', $product->combinable_multiplier) }}" 
+                                   min="1" 
+                                   required>
                         </div>
-                        @error('combined_price_multiplier')
+                        @error('combinable_multiplier')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
-                        <small class="form-text text-muted">Faktor pengali untuk harga jika papan digabungkan (misal: 1.8 untuk 2 papan berarti harga total 1.8x harga normal per papan). Kosongkan jika harga dihitung secara otomatis.</small>
+                        <small class="form-text text-muted">Masukkan jumlah pengali harga jika 2 papan digabungkan (misal: 2 untuk 2x harga). Untuk 4 papan, negosiasi manual.</small>
                     </div>
 
-                    <div class="mb-3" id="combinedDescriptionField" style="{{ old('is_combinable', $product->is_combinable) ? '' : 'display: none;' }}">
-                        <label for="combined_description" class="form-label">Deskripsi Gabungan</label>
-                        <textarea class="form-control @error('combined_description') is-invalid @enderror" 
-                                  id="combined_description" 
-                                  name="combined_description" 
-                                  rows="4">{{ old('combined_description', $product->combined_description) }}</textarea>
-                        @error('combined_description')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                        <small class="form-text text-muted">Deskripsi khusus yang ditampilkan jika produk ini dibeli sebagai papan gabungan.</small>
-                    </div>
+                    
                 </div>
             </div>
 
@@ -231,16 +229,13 @@ document.getElementById('gambar').addEventListener('change', function(e) {
 // Toggle combinable fields
 document.addEventListener('DOMContentLoaded', function() {
     const isCombinableCheckbox = document.getElementById('is_combinable');
-    const combinedPriceMultiplierField = document.getElementById('combinedPriceMultiplierField');
-    const combinedDescriptionField = document.getElementById('combinedDescriptionField');
+    const combinableMultiplierField = document.getElementById('combinableMultiplierField');
 
     function toggleCombinableFields() {
         if (isCombinableCheckbox.checked) {
-            combinedPriceMultiplierField.style.display = 'block';
-            combinedDescriptionField.style.display = 'block';
+            combinableMultiplierField.style.display = 'block';
         } else {
-            combinedPriceMultiplierField.style.display = 'none';
-            combinedDescriptionField.style.display = 'none';
+            combinableMultiplierField.style.display = 'none';
         }
     }
 

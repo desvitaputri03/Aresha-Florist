@@ -17,9 +17,6 @@ class Product extends Model
         'id_kategori',
         'gambar',
         'stok',
-        'is_combinable',
-        'combined_price_multiplier',
-        'combined_description',
     ];
 
     // relasi ke kategori

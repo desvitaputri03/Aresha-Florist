@@ -104,13 +104,52 @@
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <label for="catatan" class="form-label">Catatan Pesanan</label>
-                                <textarea class="form-control @error('catatan') is-invalid @enderror" 
-                                          id="catatan" 
-                                          name="catatan" 
-                                          rows="3" 
-                                          placeholder="Catatan khusus untuk pesanan (opsional)">{{ old('catatan') }}</textarea>
-                                @error('catatan')
+                                <label for="delivery_date" class="form-label">Tanggal Pengiriman <span class="text-danger">*</span></label>
+                                <input type="date" 
+                                       class="form-control @error('delivery_date') is-invalid @enderror" 
+                                       id="delivery_date" 
+                                       name="delivery_date" 
+                                       value="{{ old('delivery_date') }}"
+                                       required>
+                                @error('delivery_date')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <small class="form-text text-muted">Pilih tanggal barang diharapkan tiba di tujuan.</small>
+                            </div>
+                            <div class="mb-3">
+                                <label for="recipient_name" class="form-label">Untuk Siapa <span class="text-danger">*</span></label>
+                                <input type="text" 
+                                       class="form-control @error('recipient_name') is-invalid @enderror" 
+                                       id="recipient_name" 
+                                       name="recipient_name" 
+                                       value="{{ old('recipient_name') }}" 
+                                       placeholder="Nama penerima pesanan (mis: Ibu Budi)"
+                                       required>
+                                @error('recipient_name')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="mb-3">
+                                <label for="event_type" class="form-label">Jenis Acara <span class="text-danger">*</span></label>
+                                <input type="text" 
+                                       class="form-control @error('event_type') is-invalid @enderror" 
+                                       id="event_type" 
+                                       name="event_type" 
+                                       value="{{ old('event_type') }}" 
+                                       placeholder="Contoh: Wisuda, Khatam, Pembukaan Toko, dll."
+                                       required>
+                                @error('event_type')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="mb-3">
+                                <label for="custom_message" class="form-label">Kata-kata Pesanan (Khusus Papan Bunga) <span class="text-danger">*</span></label>
+                                <textarea class="form-control @error('custom_message') is-invalid @enderror" 
+                                          id="custom_message" 
+                                          name="custom_message" 
+                                          rows="5" 
+                                          placeholder="Isi pesan khusus untuk papan bunga di sini.">{{ old('custom_message') }}</textarea>
+                                @error('custom_message')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -191,16 +230,16 @@
                             
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Subtotal:</span>
-                                <span>Rp{{ number_format($total, 0, ',', '.') }}</span>
+                                <span id="subtotal-display">Rp{{ number_format($total, 0, ',', '.') }}</span>
                             </div>
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Ongkir:</span>
-                                <span class="text-success">Gratis</span>
+                                <span class="text-success" id="shipping-cost-display">Rp0</span>
                             </div>
                             <hr>
                             <div class="d-flex justify-content-between mb-4">
                                 <span class="h5 mb-0">Total:</span>
-                                <span class="h5 text-primary fw-bold mb-0">Rp{{ number_format($total, 0, ',', '.') }}</span>
+                                <span class="h5 text-primary fw-bold mb-0" id="grand-total-display">Rp{{ number_format($total, 0, ',', '.') }}</span>
                             </div>
                             
                             <button type="submit" class="btn btn-primary btn-lg w-100">
@@ -218,6 +257,13 @@
     </div>
 </section>
 
+@php
+    $googleMapsApiKey = \App\Models\Setting::getSetting('google_maps_api_key', '');
+    $costPerKmOutsidePadang = \App\Models\Setting::getSetting('cost_per_km_outside_padang', 2000);
+    $originAddress = 'Komplek kencana blok B 11 kel . gurun laweh kec .nanggalo Padang, Koto Padang, Sumatera Barat, Indonesia 25165';
+@endphp
+
+<script src="https://maps.googleapis.com/maps/api/js?key={{ $googleMapsApiKey }}&libraries=places&callback=initMap" async defer></script>
 <script>
 // Toggle payment method info
 document.addEventListener('DOMContentLoaded', function() {
@@ -245,6 +291,99 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initial state based on previously selected value (if any)
     togglePaymentInfo();
+
+    const alamatInput = document.getElementById('alamat');
+    const calculatedDistanceKmInput = document.getElementById('calculated_distance_km');
+    const alamatNotPadangInput = document.getElementById('alamat_not_padang');
+    const shippingCostDisplay = document.getElementById('shipping-cost-display');
+    const grandTotalDisplay = document.getElementById('grand-total-display');
+    const subtotal = {{ $total }};
+    const costPerKm = parseFloat('{{ $costPerKmOutsidePadang }}');
+    const originAddress = '{{ $originAddress }}';
+
+    let geocoder;
+    let distanceMatrixService;
+
+    // Function to initialize Google Maps services
+    window.initMap = function() {
+        geocoder = new google.maps.Geocoder();
+        distanceMatrixService = new google.maps.DistanceMatrixService();
+        // Initial calculation if address is already filled (e.g., old input)
+        if (alamatInput.value) {
+            calculateShipping();
+        }
+    };
+
+    async function calculateShipping() {
+        const destinationAddress = alamatInput.value;
+        let shippingCost = 0;
+        let distanceKm = 0;
+        let isPadang = false;
+
+        // Check if destination address contains 'Padang' (case-insensitive)
+        if (destinationAddress.toLowerCase().includes('padang')) {
+            isPadang = true;
+            shippingCost = 0;
+            distanceKm = 0;
+            alamatNotPadangInput.value = 'false';
+            updateDisplays(shippingCost, distanceKm);
+            return;
+        }
+
+        // If not Padang, set alamat_not_padang to true for backend validation
+        alamatNotPadangInput.value = 'true';
+
+        if (!destinationAddress) {
+            updateDisplays(0, 0);
+            return;
+        }
+
+        try {
+            const response = await distanceMatrixService.getDistanceMatrix({
+                origins: [originAddress],
+                destinations: [destinationAddress],
+                travelMode: google.maps.TravelMode.DRIVING,
+                unitSystem: google.maps.UnitSystem.METRIC,
+            });
+
+            const element = response.rows[0].elements[0];
+
+            if (element.status === 'OK') {
+                // Distance in meters, convert to kilometers
+                distanceKm = element.distance.value / 1000;
+                shippingCost = distanceKm * costPerKm;
+            } else {
+                console.error('Google Maps Distance Matrix Error:', element.status);
+                // Fallback or error handling for when API call fails or address is invalid
+                // For now, set a default high shipping cost or inform user
+                shippingCost = 0; // Set to 0 if we can't calculate, or a default value like 50km * costPerKm
+                distanceKm = 0; // No distance if API fails
+                alert('Tidak dapat menghitung biaya pengiriman untuk alamat ini. Pastikan alamat lengkap dan benar.');
+            }
+        } catch (error) {
+            console.error('Error calculating shipping cost:', error);
+            shippingCost = 0; // Default to 0 on error
+            distanceKm = 0;
+            alert('Terjadi kesalahan saat menghitung ongkir. Pastikan Google Maps API Key Anda valid dan terkonfigurasi dengan benar.');
+        }
+        updateDisplays(shippingCost, distanceKm);
+    }
+
+    function updateDisplays(shippingCost, distanceKm) {
+        const grandTotal = subtotal + shippingCost;
+        shippingCostDisplay.textContent = 'Rp' + Math.round(shippingCost).toLocaleString('id-ID');
+        grandTotalDisplay.textContent = 'Rp' + Math.round(grandTotal).toLocaleString('id-ID');
+        calculatedDistanceKmInput.value = distanceKm.toFixed(2); // Store distance with 2 decimal places
+    }
+
+    // Trigger calculation when address changes (with a debounce to avoid too many API calls)
+    let debounceTimeout;
+    alamatInput.addEventListener('input', function() {
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(() => {
+            calculateShipping();
+        }, 1000); // Wait 1 second after last input to calculate
+    });
 });
 </script>
 @endsection

@@ -50,9 +50,6 @@
                                             </td>
                                             <td>
                                                 <a href="{{ route('customer.orders.show', $order->id) }}" class="btn btn-sm btn-accent-outline">Lihat Detail</a>
-                                                @if ($order->payment_method === 'transfer' && $order->payment_status === 'pending_transfer')
-                                                    <a href="{{ route('cart.payment.confirm', $order->id) }}" class="btn btn-sm btn-success mt-1">Unggah Bukti TF</a>
-                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach

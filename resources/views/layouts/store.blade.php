@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Aresha Florist')</title>
-    <meta name="description" content="Aresha Florist - Toko bunga online terpercaya dengan rangkaian bunga terindah untuk setiap momen spesial. Free ongkir Jakarta, tanpa minimum pembelian.">
+    <title>@yield('title', 'Karangan Bunga Padang | Aresha Florist')</title>
+    <meta name="description" content="Aresha Florist - Menyediakan sewa karangan bunga, Papan Rustic, akrilik dan box. Gratis Ongkir sekota Padang!">
 
     @include('layouts.partials.styles')
 
@@ -384,21 +384,21 @@
                     <h5 class="mb-3" style="color: var(--accent-color);">
                         <img src="{{ asset('images/aresha.jpg') }}" alt="Aresha Florist Logo" style="height: 60px; margin-right: 10px;">Aresha Florist
                     </h5>
-                    <p class="text-muted">Toko bunga online terpercaya dengan rangkaian bunga terindah untuk setiap momen spesial. Kami berkomitmen memberikan kualitas terbaik dengan pelayanan yang memuaskan.</p>
+                    <p class="text-muted">Toko Karangan Bunga online terpercaya dengan pilihan papan karangan bunga, rustic, akrilik dan box terindah untuk setiap momen spesial. Kami berkomitmen memberikan kualitas terbaik dengan pelayanan yang memuaskan.</p>
                     <div class="d-flex gap-3">
                         <a href="#" class="text-light fs-5"><i class="fab fa-facebook-f"></i></a>
-                        <a href="https://www.instagram.com/areshaflorist/" class="text-light fs-5"><i class="fab fa-instagram"></i></a>
-                        <a href="https://wa.link/sylqcm" class="text-light fs-5"><i class="fab fa-whatsapp"></i></a>
+                        <a href="https://www.instagram.com/areshaflorist/" class="text-light fs-5" target="_blank"><i class="fab fa-instagram"></i></a>
+                        <a href="https://wa.me/6281374428198" class="text-light fs-5" target="_blank"><i class="fab fa-whatsapp"></i></a>
                         <a href="#" class="text-light fs-5"><i class="fab fa-twitter"></i></a>
                     </div>
                 </div>
                 <div class="col-lg-2 col-md-6 mb-4">
                     <h6 class="mb-3">Produk</h6>
                     <ul class="list-unstyled">
-                        <li><a href="#" class="text-muted text-decoration-none">Mawar</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Lily</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Tulip</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Matahari</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none">Papan Bunga</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none">Papan Rustic</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none">Akrilik</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none">Box Bunga</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-2 col-md-6 mb-4">

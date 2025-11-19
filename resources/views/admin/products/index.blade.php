@@ -17,7 +17,7 @@
             <div class="col-md-4">
                 <label class="form-label">Cari Produk</label>
                 <div class="input-group">
-                    <input type="text" name="search" value="{{ $filters['search'] }}" class="form-control" placeholder="Nama atau deskripsi produk...">
+                    <input type="text" name="search" value="{{ $filters['search'] }}" class="form-control" placeholder="Nama atau deskripsi karangan bunga...">
                     <button class="btn btn-outline-primary" type="submit">
                         <i class="fas fa-search"></i>
                     </button>
@@ -152,7 +152,7 @@
                     <tr>
                         <td colspan="8" class="text-center text-muted py-4">
                             <i class="fas fa-inbox fa-2x mb-2"></i><br>
-                            Belum ada produk
+                            Belum ada karangan bunga
                         </td>
                     </tr>
                     @endforelse

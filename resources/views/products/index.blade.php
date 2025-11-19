@@ -1,6 +1,6 @@
 @extends('layouts.store')
 
-@section('title', 'Katalog Produk')
+@section('title', 'Katalog Karangan Bunga')
 
 @section('content')
 <!-- Hero Section -->
@@ -13,13 +13,13 @@
                         <i class="fas fa-shopping-bag me-3"></i>Katalog Produk
                     </h1>
                     <p class="lead mb-4" style="max-width: 600px; margin: 0 auto; color: var(--text-dark);">
-                        Temukan rangkaian bunga terindah untuk setiap momen spesial
+                        Temukan karangan bunga terindah untuk setiap momen spesial
                     </p>
                     <div class="d-flex gap-3 justify-content-center flex-wrap">
                         <a href="#products" class="btn-accent">
                             <i class="fas fa-eye me-2"></i>Lihat Produk
                         </a>
-                        <a href="tel:+622000000000" class="btn-accent-outline">
+                        <a href="https://wa.link/sylqcm" class="btn-accent-outline">
                             <i class="fas fa-phone me-2"></i>Hubungi Kami
                         </a>
                     </div>
@@ -36,7 +36,7 @@
             <div class="col-md-4">
                 <label class="form-label">Cari</label>
                 <div class="input-group">
-                    <input type="text" name="q" value="{{ $filters['q'] }}" class="form-control" placeholder="Cari produk...">
+                    <input type="text" name="q" value="{{ $filters['q'] }}" class="form-control" placeholder="Cari karangan bunga...">
                     <button class="btn-accent" type="submit"><i class="fas fa-search"></i></button>
                 </div>
             </div>
@@ -85,7 +85,7 @@
                                  alt="{{ $product->name }}"
                                  class="img-fluid">
                         @else
-                            <img src="https://images.unsplash.com/photo-1518895949257-7621c3c786d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                            <img src="https://via.placeholder.com/500x500?text=Karangan+Bunga+Aresha"
                                  alt="{{ $product->name }}"
                                  class="img-fluid">
                         @endif
@@ -131,8 +131,8 @@
             <div class="mb-4">
                 <i class="fas fa-shopping-bag text-muted" style="font-size: 4rem;"></i>
             </div>
-            <h3 class="text-muted mb-3">Belum Ada Produk</h3>
-            <p class="text-muted mb-4">Produk akan segera ditambahkan. Silakan kembali lagi nanti.</p>
+            <h3 class="text-muted mb-3">Belum Ada Karangan Bunga</h3>
+            <p class="text-muted mb-4">Karangan bunga akan segera ditambahkan. Silakan kembali lagi nanti.</p>
             <a href="{{ url('/') }}" class="btn-accent">
                 <i class="fas fa-home me-2"></i>Kembali ke Beranda
             </a>

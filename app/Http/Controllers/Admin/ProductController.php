@@ -94,7 +94,24 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        // Prepare data before validation for consistency
+        $data = $request->all();
+
+        // Handle harga_diskon: set to null if empty string
+        if (empty($data['harga_diskon']) && $data['harga_diskon'] !== 0) {
+            $data['harga_diskon'] = null;
+        }
+
+        // Handle is_combinable checkbox and combinable_multiplier
+        $data['is_combinable'] = $request->has('is_combinable');
+        if (!$data['is_combinable']) {
+            $data['combinable_multiplier'] = null; // Ensure it's null if not combinable
+        }
+
+        // Merge the prepared data back into the request for validation
+        $request->merge($data);
+
+        $validatedData = $request->validate([
             'name' => 'required|string|max:150',
             'deskripsi' => 'nullable|string',
             'harga' => 'required|numeric|min:0',
@@ -102,16 +119,16 @@ class ProductController extends Controller
             'id_kategori' => 'required|exists:categories,id',
             'gambar' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'stok' => 'required|integer|min:0',
+            'is_combinable' => 'boolean',
+            'combinable_multiplier' => 'required_if:is_combinable,true|integer|min:1',
         ]);
 
-        $data = $request->all();
-
-        // Handle image upload
+        // Handle image upload after validation
         if ($request->hasFile('gambar')) {
-            $data['gambar'] = $request->file('gambar')->store('products', 'public');
+            $validatedData['gambar'] = $request->file('gambar')->store('products', 'public');
         }
 
-        Product::create($data);
+        Product::create($validatedData);
 
         return redirect()->route('admin.products.index')->with('success', 'Produk berhasil ditambahkan.');
     }
@@ -124,25 +141,56 @@ class ProductController extends Controller
 
     public function update(Request $request, Product $product)
     {
-        $request->validate([
-            'name' => 'required|string|max:150',
-            'deskripsi' => 'nullable|string',
-            'harga' => 'required|numeric|min:0',
-            'harga_diskon' => 'nullable|numeric|min:0',
-            'id_kategori' => 'required|exists:categories,id',
-            'gambar' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'stok' => 'required|integer|min:0',
-        ]);
+        try {
+            // Prepare data before validation for consistency
+            $data = $request->all();
 
-        $data = $request->all();
+            // Handle harga_diskon: set to null if empty string
+            if (empty($data['harga_diskon']) && $data['harga_diskon'] !== 0) {
+                $data['harga_diskon'] = null;
+            }
 
-        if ($request->hasFile('gambar')) {
-            $data['gambar'] = $request->file('gambar')->store('products', 'public');
+            // Handle is_combinable checkbox and combinable_multiplier
+            $data['is_combinable'] = $request->has('is_combinable');
+            if (!$data['is_combinable']) {
+                $data['combinable_multiplier'] = null; // Ensure it's null if not combinable
+            }
+
+            // Merge the prepared data back into the request for validation
+            $request->merge($data);
+
+            $validatedData = $request->validate([
+                'name' => 'required|string|max:150',
+                'deskripsi' => 'nullable|string',
+                'harga' => 'required|numeric|min:0',
+                'harga_diskon' => 'nullable|numeric|min:0',
+                'id_kategori' => 'required|exists:categories,id',
+                'gambar' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+                'stok' => 'required|integer|min:0',
+                'is_combinable' => 'boolean',
+                'combinable_multiplier' => 'required_if:is_combinable,true|integer|min:1',
+            ]);
+
+            // Set deskripsi to null if it's an empty string
+            if (empty($validatedData['deskripsi'])) {
+                $validatedData['deskripsi'] = null;
+            }
+
+            // Handle image upload after validation
+            if ($request->hasFile('gambar')) {
+                $validatedData['gambar'] = $request->file('gambar')->store('products', 'public');
+            }
+
+            $product->update($validatedData);
+
+            return redirect()->route('admin.products.index')->with('success', 'Produk berhasil diperbarui.');
+        } catch (\Exception $e) {
+            // Log the exception for debugging
+            \Illuminate\Support\Facades\Log::error('Error updating product: ' . $e->getMessage(), ['exception' => $e]);
+            
+            // Redirect back with an error message
+            return redirect()->back()->withInput()->withErrors(['gagal_update' => 'Terjadi kesalahan saat memperbarui produk: ' . $e->getMessage()]);
         }
-
-        $product->update($data);
-
-        return redirect()->route('admin.products.index')->with('success', 'Produk berhasil diperbarui.');
     }
 
     public function destroy(Product $product)

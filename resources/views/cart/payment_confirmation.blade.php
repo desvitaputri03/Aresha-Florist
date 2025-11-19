@@ -33,12 +33,7 @@
                         </div>
                     @endif
 
-                    <p>Pesanan Anda <strong>#{{ $order->order_number }}</strong> menunggu pembayaran. Mohon transfer sebesar <strong>Rp{{ number_format($order->grand_total, 0, ',', '.') }}</strong> ke rekening berikut:</p>
-                    <div class="alert alert-info text-center">
-                        <p class="mb-1"><strong>BANK BCA</strong></p>
-                        <p class="mb-1">Nomor Rekening: <strong>1234567890</strong></p>
-                        <p class="mb-0">Atas Nama: <strong>Aresha Florist</strong></p>
-                    </div>
+                    <p>Pesanan Anda <strong>#{{ $order->order_number }}</strong> menunggu pembayaran. Mohon transfer sebesar <strong>Rp{{ number_format($order->grand_total, 0, ',', '.') }}</strong> ke rekening <strong>{{ $bankName }}</strong> Nomor: <strong>{{ $bankAccountNumber }}</strong> a.n. Aresha Florist.</p>
 
                     <p class="mt-4">Setelah melakukan transfer, silakan unggah bukti pembayaran Anda di bawah ini:</p>
 
@@ -46,10 +41,10 @@
                         @csrf
                         <div class="mb-3">
                             <label for="proof_of_transfer_image" class="form-label">Unggah Bukti Transfer <span class="text-danger">*</span></label>
-                            <input type="file" 
-                                   class="form-control @error('proof_of_transfer_image') is-invalid @enderror" 
-                                   id="proof_of_transfer_image" 
-                                   name="proof_of_transfer_image" 
+                            <input type="file"
+                                   class="form-control @error('proof_of_transfer_image') is-invalid @enderror"
+                                   id="proof_of_transfer_image"
+                                   name="proof_of_transfer_image"
                                    accept="image/*" required>
                             @error('proof_of_transfer_image')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -66,6 +61,8 @@
     </div>
 </div>
 @endsection
+
+
 
 
 

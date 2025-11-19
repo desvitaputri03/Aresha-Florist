@@ -13,8 +13,7 @@ return new class extends Migration
     {
         Schema::table('products', function (Blueprint $table) {
             $table->boolean('is_combinable')->default(false)->after('stok');
-            $table->decimal('combined_price_multiplier', 4, 2)->nullable()->after('is_combinable');
-            $table->text('combined_description')->nullable()->after('combined_price_multiplier');
+            $table->integer('combinable_multiplier')->nullable()->after('is_combinable');
         });
     }
 
@@ -25,8 +24,7 @@ return new class extends Migration
     {
         Schema::table('products', function (Blueprint $table) {
             $table->dropColumn('is_combinable');
-            $table->dropColumn('combined_price_multiplier');
-            $table->dropColumn('combined_description');
+            $table->dropColumn('combinable_multiplier');
         });
     }
 };

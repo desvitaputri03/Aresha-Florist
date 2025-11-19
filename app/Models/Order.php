@@ -25,6 +25,10 @@ class Order extends Model
         'total_amount',
         'shipping_cost',
         'grand_total',
+        'delivery_date',
+        'recipient_name',
+        'event_type',
+        'custom_message',
     ];
 
     // Relasi ke user (customer)

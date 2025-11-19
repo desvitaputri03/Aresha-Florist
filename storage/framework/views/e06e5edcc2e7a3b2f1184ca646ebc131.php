@@ -13,6 +13,15 @@
         <h5 class="mb-0">Form Edit Produk</h5>
     </div>
     <div class="card-body">
+        <?php if($errors->any()): ?>
+            <div class="alert alert-danger mb-4">
+                <ul class="mb-0">
+                    <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <li><?php echo e($error); ?></li>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                </ul>
+            </div>
+        <?php endif; ?>
         <form action="<?php echo e(route('admin.products.update', $product->id)); ?>" method="POST" enctype="multipart/form-data">
             <?php echo csrf_field(); ?>
             <?php echo method_field('PUT'); ?>
@@ -58,7 +67,7 @@ endif;
 unset($__errorArgs, $__bag); ?>" 
                                   id="deskripsi" 
                                   name="deskripsi" 
-                                  rows="4"><?php echo e(old('deskripsi', $product->deskripsi)); ?></textarea>
+                                  rows="4"><?php echo e(old('deskripsi', $product->deskripsi ?? '')); ?></textarea>
                         <?php $__errorArgs = ['deskripsi'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -88,7 +97,7 @@ endif;
 unset($__errorArgs, $__bag); ?>" 
                                            id="harga" 
                                            name="harga" 
-                                           value="<?php echo e(old('harga', $product->harga)); ?>" 
+                                           value="<?php echo e((int) old('harga', $product->harga)); ?>" 
                                            min="0" 
                                            required>
                                 </div>
@@ -120,7 +129,7 @@ endif;
 unset($__errorArgs, $__bag); ?>" 
                                            id="harga_diskon" 
                                            name="harga_diskon" 
-                                           value="<?php echo e(old('harga_diskon', $product->harga_diskon)); ?>" 
+                                           value="<?php echo e((int) old('harga_diskon', $product->harga_diskon)); ?>" 
                                            min="0">
                                 </div>
                                 <?php $__errorArgs = ['harga_diskon'];
@@ -157,7 +166,7 @@ unset($__errorArgs, $__bag); ?>"
                                     <?php $__currentLoopData = $categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <option value="<?php echo e($category->id); ?>" 
                                                 <?php echo e(old('id_kategori', $product->id_kategori) == $category->id ? 'selected' : ''); ?>>
-                                            <?php echo e($category->nama_kategori); ?>
+                                            <?php echo e($category->name); ?>
 
                                         </option>
                                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
@@ -265,11 +274,11 @@ unset($__errorArgs, $__bag); ?>
                         <small class="form-text text-muted d-block">Centang jika produk ini dapat digabungkan dengan produk lain.</small>
                     </div>
 
-                    <div class="mb-3" id="combinedPriceMultiplierField" style="<?php echo e(old('is_combinable', $product->is_combinable) ? '' : 'display: none;'); ?>">
-                        <label for="combined_price_multiplier" class="form-label">Pengali Harga Gabungan</label>
+                    <div class="mb-3" id="combinableMultiplierField" style="<?php echo e(old('is_combinable', $product->is_combinable) ? '' : 'display: none;'); ?>">
+                        <label for="combinable_multiplier" class="form-label">Pengali Papan Gabungan</label>
                         <div class="input-group">
                             <input type="number" 
-                                   class="form-control <?php $__errorArgs = ['combined_price_multiplier'];
+                                   class="form-control <?php $__errorArgs = ['combinable_multiplier'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -277,14 +286,13 @@ $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>" 
-                                   id="combined_price_multiplier" 
-                                   name="combined_price_multiplier" 
-                                   value="<?php echo e(old('combined_price_multiplier', $product->combined_price_multiplier)); ?>" 
-                                   step="0.01" 
-                                   min="0.01" 
-                                   max="10.00">
+                                   id="combinable_multiplier" 
+                                   name="combinable_multiplier" 
+                                   value="<?php echo e((int) old('combinable_multiplier', $product->combinable_multiplier)); ?>" 
+                                   min="1" 
+                                   required>
                         </div>
-                        <?php $__errorArgs = ['combined_price_multiplier'];
+                        <?php $__errorArgs = ['combinable_multiplier'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -294,34 +302,10 @@ $message = $__bag->first($__errorArgs[0]); ?>
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
-                        <small class="form-text text-muted">Faktor pengali untuk harga jika papan digabungkan (misal: 1.8 untuk 2 papan berarti harga total 1.8x harga normal per papan). Kosongkan jika harga dihitung secara otomatis.</small>
+                        <small class="form-text text-muted">Masukkan jumlah pengali harga jika 2 papan digabungkan (misal: 2 untuk 2x harga). Untuk 4 papan, negosiasi manual.</small>
                     </div>
 
-                    <div class="mb-3" id="combinedDescriptionField" style="<?php echo e(old('is_combinable', $product->is_combinable) ? '' : 'display: none;'); ?>">
-                        <label for="combined_description" class="form-label">Deskripsi Gabungan</label>
-                        <textarea class="form-control <?php $__errorArgs = ['combined_description'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>" 
-                                  id="combined_description" 
-                                  name="combined_description" 
-                                  rows="4"><?php echo e(old('combined_description', $product->combined_description)); ?></textarea>
-                        <?php $__errorArgs = ['combined_description'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                            <div class="invalid-feedback"><?php echo e($message); ?></div>
-                        <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
-                        <small class="form-text text-muted">Deskripsi khusus yang ditampilkan jika produk ini dibeli sebagai papan gabungan.</small>
-                    </div>
+                    
                 </div>
             </div>
 
@@ -356,16 +340,13 @@ document.getElementById('gambar').addEventListener('change', function(e) {
 // Toggle combinable fields
 document.addEventListener('DOMContentLoaded', function() {
     const isCombinableCheckbox = document.getElementById('is_combinable');
-    const combinedPriceMultiplierField = document.getElementById('combinedPriceMultiplierField');
-    const combinedDescriptionField = document.getElementById('combinedDescriptionField');
+    const combinableMultiplierField = document.getElementById('combinableMultiplierField');
 
     function toggleCombinableFields() {
         if (isCombinableCheckbox.checked) {
-            combinedPriceMultiplierField.style.display = 'block';
-            combinedDescriptionField.style.display = 'block';
+            combinableMultiplierField.style.display = 'block';
         } else {
-            combinedPriceMultiplierField.style.display = 'none';
-            combinedDescriptionField.style.display = 'none';
+            combinableMultiplierField.style.display = 'none';
         }
     }
 
