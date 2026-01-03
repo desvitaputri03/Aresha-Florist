@@ -20,22 +20,22 @@
             
             <div class="row">
                 <div class="col-md-8">
-                    <div class="mb-3">
-                        <label for="name" class="form-label">Nama Kategori <span class="text-danger">*</span></label>
+                    <div class="mb-4">
+                        <label for="name" class="form-label fw-bold">Nama Kategori <span class="text-danger">*</span></label>
                         <input type="text" 
-                               class="form-control @error('name') is-invalid @enderror" 
+                               class="form-control form-control-lg @error('name') is-invalid @enderror" 
                                id="name" 
                                name="name" 
                                value="{{ old('name') }}" 
-                               placeholder="Contoh: Mawar, Lily, Tulip"
+                               placeholder="Contoh: Papan Rustic, Bunga Akrilik"
                                required>
                         @error('name')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
 
-                    <div class="mb-3">
-                        <label for="deskripsi" class="form-label">Deskripsi</label>
+                    <div class="mb-4">
+                        <label for="deskripsi" class="form-label fw-bold">Deskripsi</label>
                         <textarea class="form-control @error('deskripsi') is-invalid @enderror" 
                                   id="deskripsi" 
                                   name="deskripsi" 
@@ -45,33 +45,33 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
+
+                    <div class="mb-4">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" 
+                                   type="checkbox" 
+                                   id="is_active" 
+                                   name="is_active" 
+                                   value="1" 
+                                   {{ old('is_active', true) ? 'checked' : '' }}>
+                            <label class="form-check-label fw-bold" for="is_active">
+                                Kategori Aktif
+                            </label>
+                        </div>
+                        <small class="form-text text-muted">Kategori aktif akan langsung ditampilkan di halaman depan toko.</small>
+                    </div>
                 </div>
 
                 <div class="col-md-4">
-                    <div class="card bg-light">
+                    <div class="card bg-light border-0">
                         <div class="card-body">
-                            <h6 class="card-title">
+                            <h6 class="fw-bold mb-3 text-primary">
                                 <i class="fas fa-info-circle me-2"></i>Informasi
                             </h6>
-                            <ul class="list-unstyled mb-0">
-                                <li class="mb-2">
-                                    <small class="text-muted">
-                                        <i class="fas fa-check text-success me-1"></i>
-                                        Nama kategori harus unik
-                                    </small>
-                                </li>
-                                <li class="mb-2">
-                                    <small class="text-muted">
-                                        <i class="fas fa-check text-success me-1"></i>
-                                        Deskripsi bersifat opsional
-                                    </small>
-                                </li>
-                                <li>
-                                    <small class="text-muted">
-                                        <i class="fas fa-check text-success me-1"></i>
-                                        Kategori dapat digunakan untuk produk
-                                    </small>
-                                </li>
+                            <ul class="list-unstyled mb-0 small text-muted">
+                                <li class="mb-3"><i class="fas fa-check text-success me-2"></i>Nama kategori harus unik.</li>
+                                <li class="mb-3"><i class="fas fa-check text-success me-2"></i>Deskripsi membantu pelanggan mengenal kategori.</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Sistem akan membuat URL otomatis dari nama kategori.</li>
                             </ul>
                         </div>
                     </div>

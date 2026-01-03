@@ -16,6 +16,8 @@ class Cart extends Model
         'session_id',
         'is_combined_order',
         'combined_quantity',
+        'combined_with_product_id',
+        'combined_custom_request',
     ];
 
     // Relasi ke user (jika login)
@@ -28,6 +30,12 @@ class Cart extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    // Relasi ke produk yang digabung
+    public function combinedWithProduct()
+    {
+        return $this->belongsTo(Product::class, 'combined_with_product_id');
     }
 
     // Scope untuk cart berdasarkan session atau user

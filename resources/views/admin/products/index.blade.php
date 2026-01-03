@@ -5,9 +5,14 @@
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2><i class="fas fa-shopping-bag me-2"></i>Kelola Produk</h2>
-    <a href="{{ route('admin.products.create') }}" class="btn btn-primary">
-        <i class="fas fa-plus me-2"></i>Tambah Produk Baru
-    </a>
+    <div class="d-flex gap-2">
+        <a href="{{ route('admin.products.export-pdf') }}" class="btn btn-danger" target="_blank">
+            <i class="fas fa-file-pdf me-2"></i>Export PDF
+        </a>
+        <a href="{{ route('admin.products.create') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Tambah Produk Baru
+        </a>
+    </div>
 </div>
 
 <!-- Filter & Search Bar -->
@@ -29,7 +34,7 @@
                     <option value="">Semua Kategori</option>
                     @foreach($categories as $category)
                         <option value="{{ $category->id }}" {{ $filters['category'] == $category->id ? 'selected' : '' }}>
-                            {{ $category->nama_kategori }}
+                            {{ $category->name }}
                         </option>
                     @endforeach
                 </select>
@@ -83,8 +88,8 @@
                     <tr>
                         <td>{{ $loop->iteration + ($products->currentPage() - 1) * $products->perPage() }}</td>
                         <td>
-                            @if($product->gambar)
-                                <img src="{{ asset('storage/'.$product->gambar) }}"
+                            @if($product->images->first())
+                                <img src="{{ asset('storage/'.$product->images->first()->image_path) }}"
                                      alt="{{ $product->name }}"
                                      class="rounded"
                                      style="width: 60px; height: 60px; object-fit: cover;">
@@ -100,7 +105,7 @@
                             <small class="text-muted">{{ Str::limit($product->deskripsi, 50) }}</small>
                         </td>
                         <td>
-                            <span class="badge" style="background: var(--accent-color); color: #ffffff;">{{ $product->category->nama_kategori ?? '-' }}</span>
+                            <span class="badge" style="background: var(--accent-color); color: #ffffff;">{{ $product->category->name ?? '-' }}</span>
                         </td>
                         <td>
                             @if($product->harga_diskon)

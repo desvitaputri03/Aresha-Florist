@@ -124,19 +124,20 @@
 
                 <div class="col-md-4">
                     <div class="mb-3">
-                        <label for="gambar" class="form-label">Gambar Produk</label>
+                        <label for="images" class="form-label">Gambar Produk (Bisa lebih dari satu)</label>
                         <input type="file" 
-                               class="form-control @error('gambar') is-invalid @enderror" 
-                               id="gambar" 
-                               name="gambar" 
-                               accept="image/*">
-                        @error('gambar')
+                               class="form-control @error('images.*') is-invalid @enderror" 
+                               id="images" 
+                               name="images[]" 
+                               accept="image/*" 
+                               multiple>
+                        @error('images.*')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
-                        <small class="form-text text-muted">Format: JPG, PNG. Maksimal 2MB</small>
+                        <small class="form-text text-muted">Format: JPG, PNG. Maksimal 2MB per gambar</small>
                         
-                        <div id="imagePreview" class="mt-3" style="display: none;">
-                            <img id="previewImg" src="" alt="Preview" class="img-fluid rounded" style="max-height: 200px;">
+                        <div id="imagePreview" class="mt-3 row g-2">
+                            <!-- Image previews will be dynamically added here -->
                         </div>
                     </div>
                 </div>
@@ -164,8 +165,7 @@
                                    id="combinable_multiplier" 
                                    name="combinable_multiplier" 
                                    value="{{ (int) old('combinable_multiplier', 1) }}" 
-                                   min="1" 
-                                   required>
+                                   min="1">
                         </div>
                         @error('combinable_multiplier')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -188,18 +188,27 @@
 </div>
 
 <script>
-// Image preview functionality
-document.getElementById('gambar').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('previewImg').src = e.target.result;
-            document.getElementById('imagePreview').style.display = 'block';
-        };
-        reader.readAsDataURL(file);
+// Image preview functionality for multiple images
+document.getElementById('images').addEventListener('change', function(e) {
+    const previewContainer = document.getElementById('imagePreview');
+    previewContainer.innerHTML = ''; // Clear existing previews
+    previewContainer.style.display = 'flex'; // Show container
+
+    if (e.target.files.length > 0) {
+        Array.from(e.target.files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const colDiv = document.createElement('div');
+                colDiv.className = 'col-4'; // Adjust column size as needed
+                colDiv.innerHTML = `
+                    <img src="${e.target.result}" alt="Preview" class="img-fluid rounded shadow-sm" style="max-height: 120px; object-fit: cover;">
+                `;
+                previewContainer.appendChild(colDiv);
+            };
+            reader.readAsDataURL(file);
+        });
     } else {
-        document.getElementById('imagePreview').style.display = 'none';
+        previewContainer.style.display = 'none';
     }
 });
 
@@ -207,13 +216,28 @@ document.getElementById('gambar').addEventListener('change', function(e) {
 document.addEventListener('DOMContentLoaded', function() {
     const isCombinableCheckbox = document.getElementById('is_combinable');
     const combinableMultiplierField = document.getElementById('combinableMultiplierField');
+    const combinableMultiplierInput = document.getElementById('combinable_multiplier');
+    const form = document.querySelector('form');
 
     function toggleCombinableFields() {
         if (isCombinableCheckbox.checked) {
             combinableMultiplierField.style.display = 'block';
         } else {
             combinableMultiplierField.style.display = 'none';
+            // Clear the value when checkbox is unchecked
+            if (combinableMultiplierInput) {
+                combinableMultiplierInput.value = '';
+            }
         }
+    }
+
+    // Ensure field is cleared before form submission if checkbox is not checked
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            if (!isCombinableCheckbox.checked && combinableMultiplierInput) {
+                combinableMultiplierInput.value = '';
+            }
+        });
     }
 
     isCombinableCheckbox.addEventListener('change', toggleCombinableFields);

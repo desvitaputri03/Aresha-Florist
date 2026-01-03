@@ -7,11 +7,21 @@ use App\Models\Product;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\User;
+use App\Models\District; // Tambahkan ini
+use App\Models\Province; // Tambahkan ini
+use App\Models\Regency; // Tambahkan ini
+use App\Models\Setting; // Tambahkan ini
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Http; // Tambahkan ini
+use Illuminate\Support\Facades\Mail; // Tambahkan ini
+use App\Mail\NewOrderNotification; // Tambahkan ini
+use App\Mail\CustomerOrderConfirmation; // Tambahkan ini
+use App\Services\WhatsAppService; // Tambahkan ini
+use Illuminate\Support\Facades\Queue;
 
 class CartController extends Controller
 {
@@ -31,10 +41,7 @@ class CartController extends Controller
      */
     public function add(Request $request, Product $product)
     {
-        // Prevent admin users from adding to cart
-        if (Auth::check() && Auth::user()->is_admin) {
-            return redirect()->route('admin.dashboard')->with('error', 'Admin tidak dapat menambahkan produk ke keranjang.');
-        }
+        Log::info('CartController@add: Menerima request', $request->all());
 
         $rules = [
             'quantity' => 'required|integer|min:1|max:' . $product->stok
@@ -43,9 +50,14 @@ class CartController extends Controller
         // Add validation rules for combinable options if the product is combinable
         if ($product->is_combinable) {
             $rules['is_combined_order_input'] = 'boolean';
-            $rules['combined_quantity_input'] = 'nullable|integer|min:2|max:3';
+            $rules['combined_quantity_input'] = 'nullable';
+            $rules['combined_custom_request_input'] = 'nullable|string|max:500';
             if ($request->input('is_combined_order_input')) {
-                $rules['combined_quantity_input'] = 'required|integer|min:2|max:3';
+                // Either combined_quantity (2 or 3) OR custom_request must be provided
+                if (empty($request->input('combined_quantity_input')) && empty($request->input('combined_custom_request_input'))) {
+                    $rules['combined_quantity_input'] = 'required_without:combined_custom_request_input';
+                    $rules['combined_custom_request_input'] = 'required_without:combined_quantity_input';
+                }
             }
         }
 
@@ -54,6 +66,8 @@ class CartController extends Controller
         $quantity = $request->input('quantity');
         $isCombinedOrder = $request->input('is_combined_order_input', false);
         $combinedQuantity = $request->input('combined_quantity_input');
+        $combinedCustomRequest = $request->input('combined_custom_request_input');
+
         $userId = Auth::id();
         $sessionId = session()->getId();
 
@@ -61,10 +75,17 @@ class CartController extends Controller
         $existingCart = Cart::where('product_id', $product->id)
             ->where('is_combined_order', $isCombinedOrder)
             ->where(function($query) use ($combinedQuantity) {
-                if ($combinedQuantity !== null) {
+                if ($combinedQuantity !== null && $combinedQuantity !== '') {
                     $query->where('combined_quantity', $combinedQuantity);
                 } else {
                     $query->whereNull('combined_quantity');
+                }
+            })
+            ->where(function($query) use ($combinedCustomRequest) {
+                if ($combinedCustomRequest !== null && $combinedCustomRequest !== '') {
+                    $query->where('combined_custom_request', $combinedCustomRequest);
+                } else {
+                    $query->whereNull('combined_custom_request');
                 }
             })
             ->where(function($query) use ($userId, $sessionId) {
@@ -77,12 +98,13 @@ class CartController extends Controller
             ->first();
 
         if ($existingCart) {
-            // Jika sudah ada, update quantity
-            $newQuantity = $existingCart->quantity + $quantity;
+            // Jika sudah ada, update quantity (SET quantity agar sinkron dengan input pelanggan)
+            $newQuantity = $quantity;
             if ($newQuantity > $product->stok) {
                 return back()->with('error', 'Stok tidak mencukupi. Stok tersedia: ' . $product->stok);
             }
             $existingCart->update(['quantity' => $newQuantity]);
+            Log::info('CartController@add: Item keranjang diupdate', ['cart_id' => $existingCart->id, 'updated_quantity' => $newQuantity]);
         } else {
             // Buat item baru
             Cart::create([
@@ -91,15 +113,18 @@ class CartController extends Controller
                 'quantity' => $quantity,
                 'session_id' => $sessionId,
                 'is_combined_order' => $isCombinedOrder,
-                'combined_quantity' => $combinedQuantity,
+                'combined_quantity' => $combinedQuantity ?: null,
+                'combined_custom_request' => $combinedCustomRequest ?: null,
             ]);
         }
 
         // Opsional: langsung menuju checkout
         if ($request->filled('redirect') && $request->input('redirect') === 'checkout') {
+            Log::info('CartController@add: Redirect ke checkout.');
             return redirect()->route('cart.checkout')->with('success', 'Produk ditambahkan. Silakan selesaikan pesanan.');
         }
 
+        Log::info('CartController@add: Kembali ke halaman sebelumnya.');
         return back()->with('success', 'Produk berhasil ditambahkan ke keranjang!');
     }
 
@@ -148,10 +173,19 @@ class CartController extends Controller
 
         $total = $this->calculateTotal($cartItems);
 
-        $customerAddress = Auth::check() ? Auth::user()->customer_address : null; // Asumsi customer_address ada di model User
-        $shippingCost = $customerAddress ? $this->calculateShippingCost($customerAddress) : 0;
+        // Default values for Padang only (free shipping)
+        $shippingCost = 0;
+        $isPadang = true;
+
+        // Get ID for 'Sumatera Barat' province and 'Kota Padang' regency
+        $sumateraBarat = Province::where('name', 'Sumatera Barat')->first();
+        $kotaPadang = Regency::where('name', 'Kota Padang')->first();
         
-        return view('cart.checkout', compact('cartItems', 'total', 'shippingCost'));
+        $provinces = Province::all(['id', 'name']);
+        $regencies = $sumateraBarat ? $sumateraBarat->regencies()->get(['id', 'name']) : collect();
+        $districts = $kotaPadang ? $kotaPadang->districts()->get(['id', 'name', 'postal_code']) : collect();
+
+        return view('cart.checkout', compact('cartItems', 'total', 'shippingCost', 'isPadang', 'provinces', 'regencies', 'districts', 'sumateraBarat', 'kotaPadang'));
     }
 
     /**
@@ -159,85 +193,70 @@ class CartController extends Controller
      */
     public function processCheckout(Request $request)
     {
-        // Prevent admin users from checking out
-        if (Auth::check() && Auth::user()->is_admin) {
-            return redirect()->route('admin.dashboard')->with('error', 'Admin tidak dapat melakukan checkout.');
-        }
-
-        Log::info('Memulai proses checkout.');
         try {
             $request->validate([
                 'nama' => 'required|string|max:255',
-                'email' => 'required|email|max:100',
                 'telepon' => 'required|string|max:20',
                 'alamat' => 'required|string',
                 'catatan' => 'nullable|string',
                 'recipient_name' => 'required|string|max:255',
                 'event_type' => 'required|string|max:255',
                 'custom_message' => 'required|string|max:500',
-                'payment_method' => 'required|in:cash,transfer',
-                'delivery_date' => 'required|date|after_or_equal:tomorrow',
-                'calculated_distance_km' => 'required_if:alamat_not_padang,true|numeric|min:0', // Validasi untuk jarak yang dihitung dari frontend
+                'payment_method' => 'required|in:cash,transfer,cod,payment_gateway',
+                'delivery_date' => 'required|date|after_or_equal:today',
             ]);
-            Log::info('Validasi checkout berhasil.');
         } catch (ValidationException $e) {
-            Log::error('Validasi checkout gagal: ' . $e->getMessage());
             return redirect()->route('cart.checkout')->withErrors($e->errors())->withInput();
         }
 
         $cartItems = $this->getCartItems();
         
         if ($cartItems->isEmpty()) {
-            Log::warning('Keranjang kosong saat checkout.');
             return redirect()->route('cart.index')->with('error', 'Keranjang kosong!');
         }
-        Log::info('Keranjang tidak kosong. Jumlah item: ' . $cartItems->count());
 
         // Get admin user (first admin)
         $admin = User::where('is_admin', true)->first();
         if (!$admin) {
-            Log::error('Admin tidak ditemukan untuk proses checkout.');
             return redirect()->route('cart.index')->with('error', 'Admin tidak ditemukan. Silakan hubungi customer service.');
         }
-        Log::info('Admin ditemukan: ' . $admin->id);
 
         DB::beginTransaction();
-        Log::info('Transaksi database dimulai.');
         try {
             $totalAmount = $this->calculateTotal($cartItems);
             
-            // Dapatkan jarak yang dihitung dari frontend
-            $calculatedDistanceKm = (float) $request->input('calculated_distance_km', 0); // Default ke 0 jika tidak ada
-
-            // Cek apakah alamat tujuan berada di Padang
-            $isPadang = stripos($request->alamat, 'Padang') !== false;
-
-            // Hitung ongkir menggunakan jarak yang dihitung, atau 0 jika di Padang
-            $shippingCost = $this->calculateShippingCost($calculatedDistanceKm, $isPadang);
-
+            // Karena hanya pengiriman di Padang, ongkir selalu 0
+            $shippingCost = 0;
             $grandTotal = $totalAmount + $shippingCost;
+
+            $customerFullAddress = $request->alamat;
 
             $order = Order::create([
                 'order_number' => Order::generateOrderNumber(),
                 'user_id' => Auth::id(),
                 'admin_id' => $admin->id,
                 'customer_name' => $request->nama,
-                'customer_email' => $request->email,
+                'customer_email' => $request->email ?? 'noreply@areshaflorist.com',
                 'customer_phone' => $request->telepon,
-                'customer_address' => $request->alamat,
+                'customer_address' => $customerFullAddress, // Gunakan alamat lengkap yang dibangun
                 'notes' => $request->catatan,
                 'recipient_name' => $request->recipient_name,
                 'event_type' => $request->event_type,
                 'custom_message' => $request->custom_message,
                 'payment_method' => $request->payment_method,
-                'payment_status' => ($request->payment_method === 'transfer') ? 'pending_transfer' : 'pending',
-                'order_status' => ($request->payment_method === 'transfer') ? 'pending_payment' : 'pending',
+                'payment_status' => $request->payment_method === 'transfer' ? 'pending_transfer' : 
+                                    ($request->payment_method === 'cod' ? 'pending_cod' : 
+                                    ($request->payment_method === 'cash' ? 'pending' : 
+                                    ($request->payment_method === 'payment_gateway' ? 'pending_payment_gateway' : 'pending'))),
+                'order_status' => $request->payment_method === 'transfer' ? 'pending_payment' : 
+                                  ($request->payment_method === 'cod' ? 'pending_cod_verification' : 
+                                  ($request->payment_method === 'cash' ? 'pending' : 
+                                  ($request->payment_method === 'payment_gateway' ? 'pending_payment_gateway' : 'pending'))),
                 'total_amount' => $totalAmount,
                 'shipping_cost' => $shippingCost,
                 'grand_total' => $grandTotal,
                 'delivery_date' => $request->delivery_date,
             ]);
-            Log::info('Pesanan baru berhasil dibuat dengan ID: ' . $order->id . ' dan Nomor Pesanan: ' . $order->order_number);
 
             // Create order items
             foreach ($cartItems as $cartItem) {
@@ -249,19 +268,66 @@ class CartController extends Controller
                     'price' => $price,
                     'total_price' => $price * $cartItem->quantity,
                 ]);
-                Log::info('Item pesanan dibuat untuk produk ID: ' . $cartItem->product_id . ', Quantity: ' . $cartItem->quantity);
 
                 // Update product stock
                 $cartItem->product->decrement('stok', $cartItem->quantity);
-                Log::info('Stok produk ID: ' . $cartItem->product_id . ' diperbarui.');
             }
 
             // Clear cart
             $this->getCartItems()->each->delete();
-            Log::info('Keranjang berhasil dikosongkan.');
 
             DB::commit();
-            Log::info('Transaksi database selesai (commit).');
+            
+            // Simpan order ID untuk digunakan di background job
+            $orderId = $order->id;
+            $adminId = $admin->id;
+            $customerPhone = $request->telepon;
+            
+            // Kirim notifikasi email dan WhatsApp di background (tidak blocking)
+            // Menggunakan dispatchAfterResponse agar tidak memperlambat response ke user
+            dispatch(function () use ($orderId, $adminId, $customerPhone) {
+                // Reload order dan admin untuk memastikan data terbaru
+                $order = \App\Models\Order::find($orderId);
+                $admin = \App\Models\User::find($adminId);
+                
+                if (!$order) {
+                    return;
+                }
+                
+                // Kirim notifikasi email ke admin untuk pesanan baru
+                try {
+                    if ($admin && $admin->email) {
+                        Mail::to($admin->email)->send(new NewOrderNotification($order));
+                    }
+                } catch (\Exception $mailError) {
+                    Log::error('Gagal mengirim email notifikasi pesanan baru ke admin: ' . $mailError->getMessage());
+                }
+
+                // Kirim notifikasi email ke pelanggan
+                try {
+                    if ($order->customer_email) {
+                        Mail::to($order->customer_email)->send(new CustomerOrderConfirmation($order));
+                    }
+                } catch (\Exception $mailError) {
+                    Log::error('Gagal mengirim email konfirmasi pesanan ke pelanggan: ' . $mailError->getMessage());
+                }
+
+                // Kirim notifikasi WhatsApp ke admin dan pelanggan
+                try {
+                    $whatsAppService = new WhatsAppService();
+                    // Dapatkan nomor telepon admin dari pengaturan atau default
+                    $adminPhoneNumber = Setting::getSetting('whatsapp_admin_phone_number', '+6281234567890');
+                    if ($adminPhoneNumber) {
+                        $whatsAppService->sendNewOrderNotification($order, $adminPhoneNumber);
+                    }
+                    // Nomor telepon pelanggan dari request
+                    if ($customerPhone) {
+                        $whatsAppService->sendOrderConfirmation($order, $customerPhone);
+                    }
+                } catch (\Exception $whatsappError) {
+                    Log::error('Gagal mengirim notifikasi WhatsApp: ' . $whatsappError->getMessage());
+                }
+            })->afterResponse();
 
             $successMessage = 'Pesanan berhasil dibuat! Nomor pesanan: ' . $order->order_number . '. ';
 
@@ -269,12 +335,31 @@ class CartController extends Controller
                 $bankAccountNumber = \App\Models\Setting::getSetting('bank_account_number', '[Nomor Rekening Belum Diatur]');
                 $bankName = \App\Models\Setting::getSetting('bank_name', '[Nama Bank Belum Diatur]');
                 $successMessage .= 'Mohon segera lakukan pembayaran via transfer bank ke rekening ' . $bankName . ' ' . $bankAccountNumber . ' a.n. Aresha Florist sebesar Rp' . number_format($order->grand_total, 0, ',', '.') . '. Setelah transfer, silakan unggah bukti pembayaran Anda.';
-                Log::info('Mengarahkan ke halaman konfirmasi pembayaran untuk pesanan ID: ' . $order->id);
                 return redirect()->route('cart.payment.confirm', $order->id)->with('success', $successMessage);
+            } else if ($order->payment_method === 'payment_gateway') {
+                // --- Placeholder untuk Inisialisasi Payment Gateway --- //
+                // Di sini Anda akan mengintegrasikan dengan SDK payment gateway yang sebenarnya.
+                // Contoh: Inisialisasi transaksi, dapatkan URL redirect.
+                
+                // Untuk tujuan demo, kita akan mensimulasikan URL redirect.
+                $paymentGatewayRedirectUrl = route('cart.success', $order->id) . '?status=pending_payment_gateway';
+                
+                // Anda mungkin juga perlu menyimpan payment_gateway_order_id yang sebenarnya dari respons payment gateway
+                $order->update([
+                    'payment_gateway_order_id' => 'PG-' . $order->order_number, // ID dari payment gateway
+                    'payment_gateway_status' => 'pending', // Status awal dari payment gateway
+                ]);
+
+                return redirect()->away($paymentGatewayRedirectUrl);
+            } else if ($order->payment_method === 'cod') {
+                $successMessage .= 'Pesanan Anda akan segera diproses. Pembayaran akan dilakukan saat pengiriman (COD). ';
+                return redirect()->route('cart.success', $order->id)->with('success', $successMessage);
+            } else if ($order->payment_method === 'cash') {
+                $successMessage .= 'Pesanan Anda akan segera diproses. Silakan ambil dan bayar langsung di toko. ';
+                return redirect()->route('cart.success', $order->id)->with('success', $successMessage);
             } else {
-                $successMessage .= 'Pesanan Anda akan segera diproses. Pembayaran akan dilakukan saat pengiriman. ';
-                Log::info('Mengarahkan ke halaman detail pesanan pelanggan untuk pesanan ID: ' . $order->id);
-                return redirect()->route('customer.orders.show', $order->id)->with('success', $successMessage);
+                $successMessage .= 'Pesanan Anda akan segera diproses. ';
+                return redirect()->route('cart.success', $order->id)->with('success', $successMessage);
             }
 
         } catch (\Exception $e) {
@@ -312,11 +397,17 @@ class CartController extends Controller
             $price = $item->product->harga_diskon ?? $item->product->harga;
 
             // Apply combined board pricing logic
-            if ($item->is_combined_order && $item->combined_quantity && $item->product->is_combinable) {
-                // If it's a combined order, apply the multiplier based on combined_quantity
-                // For '2 papan = 2x price', it means the base price is multiplied by the combinable_multiplier
-                // The item->quantity for a combined order is expected to be 1 from the frontend logic.
-                return $price * $item->product->combinable_multiplier; // Use combined_multiplier for the total price of the combined set
+            if ($item->is_combined_order && $item->product->is_combinable) {
+                if ($item->combined_quantity) {
+                    // Standard combined order (2 or 3 papan) - apply multiplier
+                    // For '2 papan = 2x price', it means the base price is multiplied by the combinable_multiplier
+                    // The item->quantity for a combined order is expected to be 1 from the frontend logic.
+                    return ($price * $item->product->combinable_multiplier) * $item->quantity; // Price for N sets
+                } elseif ($item->combined_custom_request) {
+                    // Custom request - use base price, admin will adjust manually
+                    // For now, we'll use a conservative estimate (3x multiplier) but admin should review
+                    return ($price * ($item->product->combinable_multiplier ?? 3)) * $item->quantity;
+                }
             }
             
             return $price * $item->quantity;
@@ -334,24 +425,11 @@ class CartController extends Controller
 
     /**
      * Hitung biaya pengiriman
-     * Untuk sementara, mengembalikan 0 untuk Padang dan biaya per KM untuk luar Padang.
-     * Di masa depan, integrasi dengan API pihak ketiga (misalnya Google Maps API) mungkin diperlukan.
+     * Selalu gratis ongkir untuk Padang.
      */
-    private function calculateShippingCost(float $distanceKm, bool $isPadang): float
+    private function calculateShippingCost(float $distanceKm = 0, bool $isPadang = true): float
     {
-        Log::info('Memulai calculateShippingCost. Jarak: ' . $distanceKm . 'km, IsPadang: ' . ($isPadang ? 'Ya' : 'Tidak'));
-        if ($isPadang) {
-            Log::info('Alamat terdeteksi di Padang. Ongkir: 0.00');
-            return 0.00; // Gratis untuk Padang
-        }
-
-        // Untuk luar Padang, ambil biaya per KM dari pengaturan admin.
-        $costPerKm = (float) \App\Models\Setting::getSetting('cost_per_km_outside_padang', 2000);
-        Log::info('Biaya per KM (luar Padang): ' . $costPerKm);
-
-        $calculatedCost = $distanceKm * $costPerKm;
-        Log::info('Ongkir terhitung (luar Padang): ' . $calculatedCost);
-        return $calculatedCost;
+        return 0.00;
     }
 
     public function showPaymentConfirmation(Order $order)
@@ -393,9 +471,19 @@ class CartController extends Controller
                 'payment_status' => 'awaiting_admin_approval',
             ]);
 
-            return redirect()->route('customer.orders.show', $order->id)->with('success', 'Bukti transfer berhasil diunggah. Pesanan Anda akan diverifikasi oleh admin.');
+            return redirect()->route('cart.success', $order->id)->with('success', 'Bukti transfer berhasil diunggah. Pesanan Anda akan diverifikasi oleh admin.');
         }
 
         return back()->with('error', 'Gagal mengunggah bukti transfer. Silakan coba lagi.');
+    }
+
+    public function orderSuccess(Order $order)
+    {
+        // Ensure the authenticated user owns the order
+        if ($order->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        return view('cart.success', compact('order'));
     }
 }

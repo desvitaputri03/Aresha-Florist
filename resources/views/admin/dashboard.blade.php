@@ -192,17 +192,17 @@
                     <div class="position-relative">
                         @if($product->gambar)
                             <img src="{{ asset('storage/'.$product->gambar) }}"
-                                 alt="{{ $product->nama_produk }}"
+                                 alt="{{ $product->name }}"
                                  class="img-fluid">
                         @else
                             <img src="https://via.placeholder.com/500x500?text=Karangan+Bunga+Aresha"
-                                 alt="{{ $product->nama_produk }}"
+                                 alt="{{ $product->name }}"
                                  class="img-fluid">
                         @endif
-                        <div class="product-badge">{{ $product->category->nama_kategori ?? 'Kategori' }}</div>
+                        <div class="product-badge">{{ $product->category->name ?? 'Kategori' }}</div>
                     </div>
                     <div class="p-4">
-                        <h5 class="fw-bold mb-2">{{ $product->nama_produk }}</h5>
+                        <h5 class="fw-bold mb-2">{{ $product->name }}</h5>
                         <p class="text-muted mb-3">{{ Str::limit($product->deskripsi, 60) }}</p>
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
@@ -314,40 +314,6 @@
                         <a href="{{ route('admin.categories.index') }}" class="btn-accent">
                             <i class="fas fa-eye me-2"></i>Kelola
                         </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- System Info -->
-<section class="py-5 bg-light">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="product-card fade-in-up">
-                    <div class="p-4 text-center">
-                        <h3 class="fw-bold mb-4">
-                            <i class="fas fa-info-circle me-2 text-primary"></i>Informasi Sistem
-                        </h3>
-                        <div class="row mb-4">
-                            <div class="col-6">
-                                <div class="fw-bold text-primary fs-2">{{ $lowStockProducts ?? 0 }}</div>
-                                <small class="text-muted">Stok Rendah</small>
-                            </div>
-                            <div class="col-6">
-                                <div class="fw-bold text-warning fs-2">{{ $outOfStockProducts ?? 0 }}</div>
-                                <small class="text-muted">Stok Habis</small>
-                            </div>
-                        </div>
-                        <hr>
-                        <div class="text-center">
-                            <small class="text-muted">
-                                <i class="fas fa-clock me-1"></i>
-                                Terakhir diupdate: {{ now()->format('d M Y H:i') }}
-                            </small>
-                        </div>
                     </div>
                 </div>
             </div>

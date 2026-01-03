@@ -134,30 +134,46 @@
 
                 <div class="col-md-4">
                     <div class="mb-3">
-                        <label for="gambar" class="form-label">Gambar Produk</label>
+                        <label for="images" class="form-label">Gambar Produk (Bisa lebih dari satu)</label>
                         <input type="file" 
-                               class="form-control @error('gambar') is-invalid @enderror" 
-                               id="gambar" 
-                               name="gambar" 
-                               accept="image/*">
-                        @error('gambar')
+                               class="form-control @error('images.*') is-invalid @enderror" 
+                               id="images" 
+                               name="images[]" 
+                               accept="image/*" 
+                               multiple>
+                        @error('images.*')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
-                        <small class="form-text text-muted">Format: JPG, PNG. Maksimal 2MB</small>
+                        <small class="form-text text-muted">Format: JPG, PNG. Maksimal 2MB per gambar</small>
                         
-                        @if($product->gambar)
-                            <div class="mt-3">
-                                <label class="form-label">Gambar Saat Ini:</label>
-                                <img src="{{ asset('storage/'.$product->gambar) }}" 
-                                     alt="{{ $product->name }}" 
-                                     class="img-fluid rounded" 
-                                     style="max-height: 200px;">
+                        <!-- Existing Images Section -->
+                        @if($product->images->count() > 0)
+                            <div class="mt-4">
+                                <label class="form-label d-block">Gambar Saat Ini:</label>
+                                <div class="row g-2" id="existingImagesContainer">
+                                    @foreach($product->images as $image)
+                                        <div class="col-4 position-relative" id="existing-image-{{ $image->id }}">
+                                            <img src="{{ asset('storage/'.$image->image_path) }}" 
+                                                 alt="{{ $product->name }} - Gambar {{ $loop->iteration }}" 
+                                                 class="img-fluid rounded shadow-sm" 
+                                                 style="max-height: 120px; object-fit: cover;">
+                                            <div class="form-check position-absolute top-0 start-0 bg-light p-1 rounded-bottom-right" style="z-index: 1;">
+                                                <input class="form-check-input" type="checkbox" name="existing_images_ids[]" value="{{ $image->id }}" id="delete-image-{{ $image->id }}" checked>
+                                                <label class="form-check-label small" for="delete-image-{{ $image->id }}">Keep</label>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <small class="form-text text-muted mt-2">Hapus centang 'Keep' untuk menghapus gambar yang ada.</small>
                             </div>
                         @endif
-                        
-                        <div id="imagePreview" class="mt-3" style="display: none;">
-                            <label class="form-label">Preview Gambar Baru:</label>
-                            <img id="previewImg" src="" alt="Preview" class="img-fluid rounded" style="max-height: 200px;">
+
+                        <!-- New Image Preview Section -->
+                        <div id="newImagePreview" class="mt-4" style="display: none;">
+                            <label class="form-label d-block">Preview Gambar Baru:</label>
+                            <div class="row g-2" id="newImagePreviewsContainer">
+                                <!-- New image previews will be dynamically added here -->
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -185,8 +201,7 @@
                                    id="combinable_multiplier" 
                                    name="combinable_multiplier" 
                                    value="{{ (int) old('combinable_multiplier', $product->combinable_multiplier) }}" 
-                                   min="1" 
-                                   required>
+                                   min="1">
                         </div>
                         @error('combinable_multiplier')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -211,32 +226,71 @@
 </div>
 
 <script>
-// Image preview functionality
-document.getElementById('gambar').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('previewImg').src = e.target.result;
-            document.getElementById('imagePreview').style.display = 'block';
-        };
-        reader.readAsDataURL(file);
+// Image preview functionality for new multiple images
+document.getElementById('images').addEventListener('change', function(e) {
+    const previewContainer = document.getElementById('newImagePreviewsContainer');
+    previewContainer.innerHTML = ''; // Clear existing previews
+    document.getElementById('newImagePreview').style.display = 'flex'; // Show container
+
+    if (e.target.files.length > 0) {
+        Array.from(e.target.files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const colDiv = document.createElement('div');
+                colDiv.className = 'col-4'; // Adjust column size as needed
+                colDiv.innerHTML = `
+                    <img src="${e.target.result}" alt="Preview" class="img-fluid rounded shadow-sm" style="max-height: 120px; object-fit: cover;">
+                `;
+                previewContainer.appendChild(colDiv);
+            };
+            reader.readAsDataURL(file);
+        });
     } else {
-        document.getElementById('imagePreview').style.display = 'none';
+        document.getElementById('newImagePreview').style.display = 'none';
     }
 });
 
-// Toggle combinable fields
+// Toggle visibility for existing images when their checkbox is unchecked
 document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('input[name="existing_images_ids[]"]').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const imageContainer = document.getElementById(`existing-image-${this.value}`);
+            if (imageContainer) {
+                if (this.checked) {
+                    imageContainer.style.opacity = '1';
+                    imageContainer.style.border = 'none';
+                } else {
+                    imageContainer.style.opacity = '0.5';
+                    imageContainer.style.border = '2px solid red';
+                }
+            }
+        });
+    });
+
     const isCombinableCheckbox = document.getElementById('is_combinable');
     const combinableMultiplierField = document.getElementById('combinableMultiplierField');
+    const combinableMultiplierInput = document.getElementById('combinable_multiplier');
+    const form = document.querySelector('form');
 
     function toggleCombinableFields() {
         if (isCombinableCheckbox.checked) {
             combinableMultiplierField.style.display = 'block';
         } else {
             combinableMultiplierField.style.display = 'none';
+            // Clear the value when checkbox is unchecked
+            if (combinableMultiplierInput) {
+                combinableMultiplierInput.value = '';
+            }
         }
+    }
+
+    // Ensure field is cleared before form submission if checkbox is not checked
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            if (!isCombinableCheckbox.checked && combinableMultiplierInput) {
+                combinableMultiplierInput.value = '';
+            }
+        });
     }
 
     isCombinableCheckbox.addEventListener('change', toggleCombinableFields);

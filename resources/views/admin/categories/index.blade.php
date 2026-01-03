@@ -45,7 +45,7 @@
                     <div class="p-4">
                         <div class="d-flex justify-content-between align-items-start mb-3">
                             <div>
-                                <h5 class="fw-bold mb-1">{{ $category->nama_kategori }}</h5>
+                                <h5 class="fw-bold mb-1">{{ $category->name }}</h5>
                                 <span class="badge bg-primary">{{ $category->products_count }} produk</span>
                             </div>
                             <div class="dropdown">

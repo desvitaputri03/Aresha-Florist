@@ -45,10 +45,9 @@ class CategoryController extends Controller
             $data['slug'] = \Str::slug($data['name']);
         }
         
-        // Map old field names to new field names
-        $data['nama_kategori'] = $data['name'];
-        $data['deskripsi'] = $data['description'];
-        unset($data['name'], $data['description']);
+        // Map description to deskripsi if needed
+        $data['deskripsi'] = $data['description'] ?? null;
+        unset($data['description']);
 
         Category::create($data);
 
@@ -85,10 +84,9 @@ class CategoryController extends Controller
             $data['slug'] = \Str::slug($data['name']);
         }
         
-        // Map old field names to new field names
-        $data['nama_kategori'] = $data['name'];
-        $data['deskripsi'] = $data['description'];
-        unset($data['name'], $data['description']);
+        // Map description to deskripsi if needed
+        $data['deskripsi'] = $data['description'] ?? null;
+        unset($data['description']);
 
         $category->update($data);
 

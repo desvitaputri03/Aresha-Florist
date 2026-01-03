@@ -19,6 +19,8 @@ class Order extends Model
         'customer_address',
         'notes',
         'payment_method',
+        'payment_gateway_order_id',
+        'payment_gateway_status',
         'payment_status',
         'proof_of_transfer_image',
         'order_status',

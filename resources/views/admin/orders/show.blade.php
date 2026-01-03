@@ -161,12 +161,12 @@
                                     <div class="d-flex align-items-center">
                                         @if($item->product->gambar)
                                             <img src="{{ asset('storage/'.$item->product->gambar) }}" 
-                                                 alt="{{ $item->product->nama_produk }}" 
+                                                 alt="{{ $item->product->name }}" 
                                                  class="me-3" style="width: 50px; height: 50px; object-fit: cover;">
                                         @endif
                                         <div>
-                                            <div class="fw-bold">{{ $item->product->nama_produk }}</div>
-                                            <small class="text-muted">{{ $item->product->category->nama_kategori ?? 'Kategori' }}</small>
+                                            <div class="fw-bold">{{ $item->product->name }}</div>
+                                            <small class="text-muted">{{ $item->product->category->name ?? 'Kategori' }}</small>
                                         </div>
                                     </div>
                                 </td>

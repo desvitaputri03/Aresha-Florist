@@ -54,14 +54,14 @@
     <div class="container">
         <div class="row g-4" id="categoryGrid">
             @forelse($categories as $category)
-            <div class="col-lg-3 col-md-6 category-card" data-name="{{ strtolower($category->nama_kategori ?? $category->name) }}">
+            <div class="col-lg-3 col-md-6 category-card" data-name="{{ strtolower($category->name) }}">
                 <div class="product-card fade-in-up">
                     <div class="position-relative">
-                        <img src="https://via.placeholder.com/900x600?text=Kategori+Karangan+Bunga+Aresha" alt="{{ $category->nama_kategori ?? $category->name }}" class="img-fluid">
+                        <img src="https://via.placeholder.com/900x600?text=Kategori+Karangan+Bunga+Aresha" alt="{{ $category->name }}" class="img-fluid">
                         <div class="product-badge">Kategori</div>
                     </div>
                     <div class="p-4">
-                        <h5 class="fw-bold mb-2">{{ $category->nama_kategori ?? $category->name }}</h5>
+                        <h5 class="fw-bold mb-2">{{ $category->name }}</h5>
                         <p class="text-muted mb-3">{{ Str::limit($category->deskripsi ?? $category->description, 80) }}</p>
                         <div class="d-flex justify-content-between align-items-center">
                             <a href="{{ route('products.index', ['category' => $category->id]) }}" class="btn-accent btn-sm">

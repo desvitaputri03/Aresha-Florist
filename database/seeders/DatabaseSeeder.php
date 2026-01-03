@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use App\Models\Category;
 use App\Models\Product;
+use Database\Seeders\GeoDataSeeder; // Tambahkan ini
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -15,14 +16,17 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Panggil seeder data geografis terlebih dahulu
+        $this->call(GeoDataSeeder::class);
+
         // Create categories
         $categories = [
-            ['name' => 'Mawar', 'deskripsi' => 'Bunga mawar segar berkualitas tinggi'],
-            ['name' => 'Lily', 'deskripsi' => 'Bunga lily elegan dan harum'],
-            ['name' => 'Tulip', 'deskripsi' => 'Bunga tulip warna-warni yang cantik'],
-            ['name' => 'Matahari', 'deskripsi' => 'Bunga matahari cerah dan ceria'],
-            ['name' => 'Baby Breath', 'deskripsi' => 'Bunga baby breath lembut dan romantis'],
-            ['name' => 'Anggrek', 'deskripsi' => 'Bunga anggrek eksotis dan mewah'],
+            ['name' => 'Bunga Papan Wedding', 'deskripsi' => 'Karangan bunga papan untuk ucapan pernikahan'],
+            ['name' => 'Bunga Papan Duka Cita', 'deskripsi' => 'Karangan bunga papan untuk ucapan duka cita'],
+            ['name' => 'Bunga Papan Congratulations', 'deskripsi' => 'Karangan bunga papan untuk ucapan selamat dan sukses'],
+            ['name' => 'Papan Rustic', 'deskripsi' => 'Karangan bunga dengan gaya rustic yang elegan'],
+            ['name' => 'Bunga Akrilik', 'deskripsi' => 'Karangan bunga mini dengan media akrilik'],
+            ['name' => 'Bunga Box', 'deskripsi' => 'Rangkaian bunga cantik dalam kotak premium'],
         ];
 
         foreach ($categories as $category) {
@@ -32,68 +36,52 @@ class DatabaseSeeder extends Seeder
         // Create sample products
         $products = [
             [
-                'name' => 'Buket Bunga Mawar Merah',
-                'deskripsi' => 'Love Story Bouquet - 12 tangkai mawar merah segar dengan kemasan elegan',
+                'name' => 'Karangan Bunga Papan Wedding Premium',
+                'deskripsi' => 'Karangan bunga papan ukuran besar dengan desain elegan untuk hari bahagia pelanggan.',
                 'harga' => 1200000,
                 'harga_diskon' => 845000,
                 'id_kategori' => 1,
                 'stok' => 25,
             ],
             [
-                'name' => 'Buket Bunga Lily Putih',
-                'deskripsi' => 'Pure Elegance Bouquet - 8 tangkai lily putih dengan daun hijau segar',
+                'name' => 'Papan Bunga Duka Cita Simpati',
+                'deskripsi' => 'Karangan bunga papan untuk menyampaikan rasa duka cita yang mendalam.',
                 'harga' => 750000,
                 'harga_diskon' => 650000,
                 'id_kategori' => 2,
                 'stok' => 18,
             ],
             [
-                'name' => 'Buket Bunga Tulip',
-                'deskripsi' => 'Spring Joy Bouquet - Campuran tulip warna-warni yang cerah',
+                'name' => 'Papan Rustic Elegant Type A',
+                'deskripsi' => 'Rangkaian bunga papan gaya rustic dengan sentuhan kayu dan bunga pilihan.',
                 'harga' => 550000,
                 'harga_diskon' => null,
-                'id_kategori' => 3,
+                'id_kategori' => 4,
                 'stok' => 30,
             ],
             [
-                'name' => 'Bunga Box Mawar Pink',
-                'deskripsi' => 'Sweet Dreams Box - 6 tangkai mawar pink dalam box elegan',
+                'name' => 'Bunga Box Exclusive Pink',
+                'deskripsi' => 'Rangkaian bunga dalam box premium untuk hadiah spesial.',
                 'harga' => 425000,
                 'harga_diskon' => null,
-                'id_kategori' => 1,
+                'id_kategori' => 6,
                 'stok' => 15,
             ],
             [
-                'name' => 'Buket Bunga Matahari',
-                'deskripsi' => 'Sunshine Bouquet - 5 tangkai matahari kuning cerah',
+                'name' => 'Bunga Akrilik Ucapan Meja',
+                'deskripsi' => 'Akrilik bunga cantik untuk hiasan meja atau ucapan simpel.',
                 'harga' => 375000,
                 'harga_diskon' => null,
-                'id_kategori' => 4,
+                'id_kategori' => 5,
                 'stok' => 22,
             ],
             [
-                'name' => 'Bunga Papan Pernikahan',
-                'deskripsi' => 'Wedding Congratulations Board - Papan bunga untuk ucapan pernikahan',
-                'harga' => 1000000,
-                'harga_diskon' => 900000,
-                'id_kategori' => 1,
-                'stok' => 8,
-            ],
-            [
-                'name' => 'Bunga Meja Lily',
-                'deskripsi' => 'Table Centerpiece - Arrangement lily elegan untuk meja',
-                'harga' => 325000,
-                'harga_diskon' => null,
-                'id_kategori' => 2,
-                'stok' => 12,
-            ],
-            [
-                'name' => 'Buket Bunga Mawar 99',
-                'deskripsi' => 'Passionately Yours - 99 tangkai mawar merah premium',
-                'harga' => 2650000,
-                'harga_diskon' => 2500000,
-                'id_kategori' => 1,
-                'stok' => 5,
+                'name' => 'Karangan Bunga Papan Congratulations XL',
+                'deskripsi' => 'Papan bunga ukuran ekstra besar untuk peresmian atau pembukaan toko.',
+                'harga' => 2000000,
+                'harga_diskon' => 1800000,
+                'id_kategori' => 3,
+                'stok' => 10,
             ],
         ];
 

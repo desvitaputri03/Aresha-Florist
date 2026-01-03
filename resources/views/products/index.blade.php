@@ -4,142 +4,180 @@
 
 @section('content')
 <!-- Hero Section -->
-<section class="hero-section">
-    <div class="container">
-        <div class="row align-items-center g-4">
-            <div class="col-lg-8 mx-auto text-center">
-                <div class="hero-content">
-                    <h1 class="display-4 mb-4 fw-bold" style="color: var(--primary-color);">
-                        <i class="fas fa-shopping-bag me-3"></i>Katalog Produk
-                    </h1>
-                    <p class="lead mb-4" style="max-width: 600px; margin: 0 auto; color: var(--text-dark);">
-                        Temukan karangan bunga terindah untuk setiap momen spesial
-                    </p>
-                    <div class="d-flex gap-3 justify-content-center flex-wrap">
-                        <a href="#products" class="btn-accent">
-                            <i class="fas fa-eye me-2"></i>Lihat Produk
-                        </a>
-                        <a href="https://wa.link/sylqcm" class="btn-accent-outline">
-                            <i class="fas fa-phone me-2"></i>Hubungi Kami
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
+<section class="hero-section" style="background: var(--bg-light); padding: 4rem 0;">
+    <div class="container text-center">
+        <h6 class="text-primary text-uppercase fw-bold mb-3 ls-wide" style="letter-spacing: 2px;">Koleksi Lengkap</h6>
+        <h1 class="display-4 fw-bold mb-3" style="font-family: 'Playfair Display', serif; color: var(--text-dark);">Katalog Karangan Bunga</h1>
+        <p class="text-muted mx-auto" style="max-width: 600px;">Temukan rangkaian bunga terbaik yang dirancang khusus untuk mewakili perasaan Anda.</p>
     </div>
 </section>
 
-<!-- Filter Navigation (Toolbar like reference) -->
-<section class="filter-nav">
+<!-- Filter Navigation -->
+<section class="py-3 border-bottom bg-white sticky-top" style="top: 80px; z-index: 990;">
     <div class="container">
-        <form method="GET" action="{{ route('products.index') }}" class="row g-3 align-items-end">
-            <div class="col-md-4">
-                <label class="form-label">Cari</label>
-                <div class="input-group">
-                    <input type="text" name="q" value="{{ $filters['q'] }}" class="form-control" placeholder="Cari karangan bunga...">
-                    <button class="btn-accent" type="submit"><i class="fas fa-search"></i></button>
+        <form method="GET" action="{{ route('products.index') }}" class="row g-3 align-items-center">
+            <div class="col-lg-4">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-transparent border-end-0"><i class="fas fa-search text-muted"></i></span>
+                    <input type="text" name="q" value="{{ $filters['q'] }}" class="form-control border-start-0 ps-0" placeholder="Cari nama produk...">
                 </div>
             </div>
-            <div class="col-md-3">
-                <label class="form-label">Kategori</label>
-                <select class="form-select" name="category">
+            <div class="col-lg-3">
+                <select class="form-select form-select-sm" name="category" onchange="this.form.submit()">
                     <option value="">Semua Kategori</option>
                     @foreach($categories as $cat)
                         <option value="{{ $cat->id }}" {{ $filters['category']==$cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
                     @endforeach
                 </select>
             </div>
-            <div class="col-md-3">
-                <label class="form-label">Harga (Rp)</label>
-                <div class="d-flex gap-2">
-                    <input type="number" name="price_from" class="form-control" placeholder="Dari" value="{{ $filters['price_from'] }}" min="0">
-                    <input type="number" name="price_to" class="form-control" placeholder="Sampai" value="{{ $filters['price_to'] }}" min="0">
-                </div>
-            </div>
-            <div class="col-md-2">
-                <label class="form-label">Urutkan</label>
-                <select class="form-select" name="sort" onchange="this.form.submit()">
+            <div class="col-lg-3">
+                <select class="form-select form-select-sm" name="sort" onchange="this.form.submit()">
                     <option value="featured" {{ $filters['sort']=='featured' ? 'selected' : '' }}>Terbaru</option>
-                    <option value="newest" {{ $filters['sort']=='newest' ? 'selected' : '' }}>Tanggal: baru ke lama</option>
-                    <option value="oldest" {{ $filters['sort']=='oldest' ? 'selected' : '' }}>Tanggal: lama ke baru</option>
+                    <option value="price_low_high" {{ $filters['sort']=='price_low_high' ? 'selected' : '' }}>Harga: Terendah</option>
+                    <option value="price_high_low" {{ $filters['sort']=='price_high_low' ? 'selected' : '' }}>Harga: Tertinggi</option>
                     <option value="name_asc" {{ $filters['sort']=='name_asc' ? 'selected' : '' }}>Nama: A-Z</option>
-                    <option value="name_desc" {{ $filters['sort']=='name_desc' ? 'selected' : '' }}>Nama: Z-A</option>
-                    <option value="price_low_high" {{ $filters['sort']=='price_low_high' ? 'selected' : '' }}>Harga: rendah ke tinggi</option>
-                    <option value="price_high_low" {{ $filters['sort']=='price_high_low' ? 'selected' : '' }}>Harga: tinggi ke rendah</option>
                 </select>
+            </div>
+            <div class="col-lg-2 text-lg-end">
+                <button type="submit" class="btn btn-primary btn-sm px-4 rounded-pill">Filter</button>
             </div>
         </form>
     </div>
 </section>
 
 <!-- Products Grid -->
-<section id="products" class="py-5">
+<section id="products" class="py-5 bg-light">
     <div class="container">
         <div class="row g-4">
-            @foreach($products as $product)
+            @forelse($products as $product)
             <div class="col-lg-3 col-md-6">
-                <div class="product-card fade-in-up">
-                    <div class="position-relative">
-                        @if($product->gambar)
-                            <img src="{{ asset('storage/'.$product->gambar) }}"
+                <div class="product-card-premium bg-white h-100 fade-in-up shadow-sm">
+                    <a href="{{ route('products.show', $product->id) }}" class="card-img-wrapper d-block position-relative overflow-hidden">
+                        @php $firstImage = $product->images->first(); @endphp
+                        @if($firstImage)
+                            <img src="{{ asset('storage/'.$firstImage->image_path) }}"
                                  alt="{{ $product->name }}"
-                                 class="img-fluid">
+                                 class="product-img">
                         @else
-                            <img src="https://via.placeholder.com/500x500?text=Karangan+Bunga+Aresha"
+                            <img src="https://via.placeholder.com/600x600?text=Produk+Aresha"
                                  alt="{{ $product->name }}"
-                                 class="img-fluid">
+                                 class="product-img">
                         @endif
+
                         @if($product->harga_diskon)
-                            <div class="product-badge">
-                                -{{ round((($product->harga - $product->harga_diskon) / $product->harga) * 100) }}%
-                            </div>
+                            <div class="premium-badge discount">-{{ round((($product->harga - $product->harga_diskon) / $product->harga) * 100) }}%</div>
                         @endif
-                    </div>
-                    <div class="p-4">
-                        <h5 class="fw-bold mb-2">{{ $product->name }}</h5>
-                        <p class="text-muted mb-3">{{ Str::limit($product->deskripsi, 60) }}</p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                @if($product->harga_diskon)
-                                    <span class="h5 text-primary mb-0">Rp{{ number_format($product->harga_diskon,0,',','.') }}</span>
-                                    <small class="text-muted text-decoration-line-through ms-2">Rp{{ number_format($product->harga,0,',','.') }}</small>
-                                @else
-                                    <span class="h5 text-primary mb-0">Rp{{ number_format($product->harga,0,',','.') }}</span>
-                                @endif
-                            </div>
-                            <a href="{{ route('products.show', $product->id) }}" class="btn-accent btn-sm">
-                                <i class="fas fa-eye me-1"></i>Lihat
-                            </a>
+                    </a>
+                    <div class="p-4 text-center">
+                        <small class="text-uppercase ls-wide text-muted mb-2 d-block" style="font-size: 0.7rem; font-weight: 600;">{{ $product->category->name ?? 'Florist' }}</small>
+                        <h5 class="product-title fw-bold mb-3">{{ $product->name }}</h5>
+                        <div class="product-price mb-3">
+                            @if($product->harga_diskon)
+                                <span class="price-new">Rp {{ number_format($product->harga_diskon, 0, ',', '.') }}</span>
+                                <span class="price-old">Rp {{ number_format($product->harga, 0, ',', '.') }}</span>
+                            @else
+                                <span class="price-new">Rp {{ number_format($product->harga, 0, ',', '.') }}</span>
+                            @endif
                         </div>
-                        <div class="mt-2">
-                            <small class="text-muted">
-                                <i class="fas fa-box me-1"></i>Stok: {{ $product->stok }}
-                            </small>
-                        </div>
+                        <a href="{{ route('products.show', $product->id) }}" class="btn btn-show-product w-100">Detail Produk</a>
                     </div>
                 </div>
             </div>
-            @endforeach
+            @empty
+            <div class="col-12 text-center py-5">
+                <i class="fas fa-shopping-bag fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">Produk tidak ditemukan</h5>
+            </div>
+            @endforelse
         </div>
 
-        <div class="d-flex justify-content-center mt-4">
+        <div class="d-flex justify-content-center mt-5">
             {{ $products->links() }}
         </div>
-
-        @if($products->isEmpty())
-        <div class="text-center py-5">
-            <div class="mb-4">
-                <i class="fas fa-shopping-bag text-muted" style="font-size: 4rem;"></i>
-            </div>
-            <h3 class="text-muted mb-3">Belum Ada Karangan Bunga</h3>
-            <p class="text-muted mb-4">Karangan bunga akan segera ditambahkan. Silakan kembali lagi nanti.</p>
-            <a href="{{ url('/') }}" class="btn-accent">
-                <i class="fas fa-home me-2"></i>Kembali ke Beranda
-            </a>
-        </div>
-        @endif
     </div>
 </section>
+
+<style>
+    .product-card-premium {
+        background: #fff;
+        border: 1px solid rgba(0,0,0,0.05);
+        transition: var(--transition);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+    }
+    .product-card-premium:hover {
+        transform: translateY(-10px);
+        box-shadow: var(--shadow-lg);
+    }
+    .card-img-wrapper {
+        aspect-ratio: 1/1;
+        position: relative;
+    }
+    .product-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.8s ease;
+    }
+    .product-card-premium:hover .product-img {
+        transform: scale(1.1);
+    }
+    .product-title {
+        font-family: 'Inter', sans-serif;
+        font-size: 1rem;
+        color: var(--text-dark);
+        height: 2.4em;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+    .price-new {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: var(--primary-color);
+        display: block;
+    }
+    .price-old {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        text-decoration: line-through;
+    }
+    .btn-show-product {
+        background: transparent;
+        color: var(--primary-color);
+        border: 2px solid var(--primary-color);
+        padding: 0.4rem 1rem;
+        font-weight: 600;
+        border-radius: 50px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 0.85rem;
+    }
+    .btn-show-product:hover {
+        background: var(--primary-color);
+        color: white;
+    }
+    .premium-badge {
+        position: absolute;
+        padding: 5px 12px;
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        z-index: 10;
+        border-radius: 0 0 12px 0;
+    }
+    .premium-badge.discount {
+        top: 0; left: 0;
+        background: var(--primary-dark);
+        color: white;
+    }
+    .product-overlay {
+        display: none;
+    }
+</style>
 
 <script>
 // Add smooth scrolling animation to elements

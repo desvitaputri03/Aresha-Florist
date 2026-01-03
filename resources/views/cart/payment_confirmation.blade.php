@@ -53,7 +53,7 @@
                         </div>
 
                         <button type="submit" class="btn btn-primary">Kirim Bukti Transfer</button>
-                        <a href="{{ route('customer.orders.show', $order->id) }}" class="btn btn-secondary">Kembali ke Detail Pesanan</a>
+                        <a href="{{ route('cart.success', $order->id) }}" class="btn btn-secondary">Kembali ke Detail Pesanan</a>
                     </form>
                 </div>
             </div>

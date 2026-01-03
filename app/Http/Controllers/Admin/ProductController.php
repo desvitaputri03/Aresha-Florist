@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Admin\BaseAdminController as Controller;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\ProductImage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -86,6 +88,11 @@ class ProductController extends Controller
         ]);
     }
 
+    public function show(Product $product)
+    {
+        return redirect()->route('admin.products.edit', $product->id);
+    }
+
     public function create()
     {
         $categories = Category::all();
@@ -104,8 +111,9 @@ class ProductController extends Controller
 
         // Handle is_combinable checkbox and combinable_multiplier
         $data['is_combinable'] = $request->has('is_combinable');
-        if (!$data['is_combinable']) {
-            $data['combinable_multiplier'] = null; // Ensure it's null if not combinable
+        // Always set combinable_multiplier to null if empty, not checked, or not provided
+        if (!$data['is_combinable'] || empty($data['combinable_multiplier']) || $data['combinable_multiplier'] === '' || !isset($data['combinable_multiplier'])) {
+            $data['combinable_multiplier'] = null;
         }
 
         // Merge the prepared data back into the request for validation
@@ -117,18 +125,28 @@ class ProductController extends Controller
             'harga' => 'required|numeric|min:0',
             'harga_diskon' => 'nullable|numeric|min:0',
             'id_kategori' => 'required|exists:categories,id',
-            'gambar' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'images.*' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'stok' => 'required|integer|min:0',
             'is_combinable' => 'boolean',
-            'combinable_multiplier' => 'required_if:is_combinable,true|integer|min:1',
+            'combinable_multiplier' => 'nullable|integer|min:1',
         ]);
 
-        // Handle image upload after validation
-        if ($request->hasFile('gambar')) {
-            $validatedData['gambar'] = $request->file('gambar')->store('products', 'public');
-        }
+        // Remove 'images' from validatedData as it's an array for ProductImage model
+        $productData = collect($validatedData)->except(['images'])->toArray();
 
-        Product::create($validatedData);
+        $product = Product::create($productData);
+
+        // Handle multiple image uploads
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $index => $image) {
+                $imagePath = $image->store('products', 'public');
+                ProductImage::create([
+                    'product_id' => $product->id,
+                    'image_path' => $imagePath,
+                    'order' => $index, // Storing order for display
+                ]);
+            }
+        }
 
         return redirect()->route('admin.products.index')->with('success', 'Produk berhasil ditambahkan.');
     }
@@ -136,6 +154,7 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $categories = Category::all();
+        $product->load('images'); // Load existing images
         return view('admin.products.edit', compact('product', 'categories'));
     }
 
@@ -152,8 +171,9 @@ class ProductController extends Controller
 
             // Handle is_combinable checkbox and combinable_multiplier
             $data['is_combinable'] = $request->has('is_combinable');
-            if (!$data['is_combinable']) {
-                $data['combinable_multiplier'] = null; // Ensure it's null if not combinable
+            // Always set combinable_multiplier to null if empty, not checked, or not provided
+            if (!$data['is_combinable'] || empty($data['combinable_multiplier']) || $data['combinable_multiplier'] === '' || !isset($data['combinable_multiplier'])) {
+                $data['combinable_multiplier'] = null;
             }
 
             // Merge the prepared data back into the request for validation
@@ -165,10 +185,12 @@ class ProductController extends Controller
                 'harga' => 'required|numeric|min:0',
                 'harga_diskon' => 'nullable|numeric|min:0',
                 'id_kategori' => 'required|exists:categories,id',
-                'gambar' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+                'images.*' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
                 'stok' => 'required|integer|min:0',
                 'is_combinable' => 'boolean',
-                'combinable_multiplier' => 'required_if:is_combinable,true|integer|min:1',
+                'combinable_multiplier' => 'nullable|integer|min:1',
+                'existing_images_ids' => 'nullable|array', // For existing images to keep
+                'existing_images_ids.*' => 'exists:product_images,id',
             ]);
 
             // Set deskripsi to null if it's an empty string
@@ -176,12 +198,29 @@ class ProductController extends Controller
                 $validatedData['deskripsi'] = null;
             }
 
-            // Handle image upload after validation
-            if ($request->hasFile('gambar')) {
-                $validatedData['gambar'] = $request->file('gambar')->store('products', 'public');
-            }
+            // Remove 'images' and 'existing_images_ids' from validatedData
+            $productData = collect($validatedData)->except(['images', 'existing_images_ids'])->toArray();
 
-            $product->update($validatedData);
+            $product->update($productData);
+
+            // Handle existing images: delete unchecked ones
+            $existingImageIdsToKeep = $request->input('existing_images_ids', []);
+            $product->images()->whereNotIn('id', $existingImageIdsToKeep)->get()->each(function ($image) {
+                Storage::disk('public')->delete($image->image_path);
+                $image->delete();
+            });
+
+            // Handle new image uploads
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $index => $image) {
+                    $imagePath = $image->store('products', 'public');
+                    ProductImage::create([
+                        'product_id' => $product->id,
+                        'image_path' => $imagePath,
+                        'order' => $product->images()->count() + $index, // Append new images
+                    ]);
+                }
+            }
 
             return redirect()->route('admin.products.index')->with('success', 'Produk berhasil diperbarui.');
         } catch (\Exception $e) {
@@ -195,8 +234,21 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
+        // Delete associated images from storage
+        foreach ($product->images as $image) {
+            Storage::disk('public')->delete($image->image_path);
+        }
+        $product->images()->delete(); // Delete all related image records
+
         $product->delete();
         return redirect()->route('admin.products.index')->with('success', 'Produk berhasil dihapus.');
+    }
+
+    public function exportPdf()
+    {
+        $products = Product::with('category')->orderBy('name')->get();
+        $pdf = \PDF::loadView('admin.products.pdf', compact('products'));
+        return $pdf->download('laporan-produk.pdf');
     }
 }
 

@@ -8,14 +8,14 @@
     @csrf @method('PUT')
     <div class="mb-3">
         <label>Nama Produk</label>
-        <input type="text" name="nama_produk" class="form-control" value="{{ $product->nama_produk }}" required>
+        <input type="text" name="name" class="form-control" value="{{ $product->name }}" required>
     </div>
     <div class="mb-3">
         <label>Kategori</label>
         <select name="id_kategori" class="form-control" required>
             @foreach($categories as $cat)
                 <option value="{{ $cat->id }}" {{ $product->id_kategori == $cat->id ? 'selected' : '' }}>
-                    {{ $cat->nama_kategori }}
+                    {{ $cat->name }}
                 </option>
             @endforeach
         </select>

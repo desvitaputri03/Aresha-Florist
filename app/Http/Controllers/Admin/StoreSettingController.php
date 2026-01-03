@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Setting;
+use App\Models\StoreSetting; // Tambahkan ini
 
 class StoreSettingController extends Controller
 {
@@ -12,15 +13,13 @@ class StoreSettingController extends Controller
     {
         $bankAccount = Setting::getSetting('bank_account_number', 'Belum diatur');
         $bankName = Setting::getSetting('bank_name', 'Belum diatur');
-        $costPerKm = Setting::getSetting('cost_per_km_outside_padang', 2000);
-        $defaultDistance = Setting::getSetting('default_distance_outside_padang_km', 50);
-        $googleMapsApiKey = Setting::getSetting('google_maps_api_key', '');
-        return view('admin.settings.store', compact('bankAccount', 'bankName', 'costPerKm', 'defaultDistance', 'googleMapsApiKey'));
+
+        return view('admin.settings.store', compact('bankAccount', 'bankName'));
     }
 
     public function update(Request $request)
     {
-        $request->validate([
+        $validatedData = $request->validate([
             'bank_account_number' => 'required|string|max:255',
             'bank_name' => 'required|string|max:255',
         ]);

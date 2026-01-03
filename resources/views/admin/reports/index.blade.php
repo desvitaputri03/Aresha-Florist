@@ -7,7 +7,65 @@
     <h2><i class="fas fa-chart-bar me-2"></i>Laporan</h2>
 </div>
 
-<div class="d-flex justify-content-end mb-3">
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <form method="GET" action="{{ route('admin.reports.index') }}" class="w-100 me-3">
+    <div class="row g-2 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label" for="period-select">Tipe Laporan:</label>
+            <select class="form-select" id="period-select" name="period">
+                    <option value="monthly" {{ $period == 'monthly' ? 'selected' : '' }}>Bulanan</option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label" for="start_month">Dari Bulan:</label>
+            <select class="form-select" id="start_month" name="start_month">
+                @for ($m = 1; $m <= 12; $m++)
+                    <option value="{{ $m }}" {{ (isset(request()->start_month) && request()->start_month == $m) ? 'selected' : '' }}>
+                        {{ \Carbon\Carbon::create()->month($m)->translatedFormat('F') }}
+                    </option>
+                @endfor
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label" for="start_year">Tahun:</label>
+            <select class="form-select" id="start_year" name="start_year">
+                @for ($y = now()->year - 5; $y <= now()->year + 1; $y++)
+                    <option value="{{ $y }}" {{ (isset(request()->start_year) && request()->start_year == $y) ? 'selected' : '' }}>
+                        {{ $y }}
+                    </option>
+                @endfor
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label" for="end_month">Sampai Bulan:</label>
+            <select class="form-select" id="end_month" name="end_month">
+                @for ($m = 1; $m <= 12; $m++)
+                    <option value="{{ $m }}" {{ (isset(request()->end_month) && request()->end_month == $m) ? 'selected' : '' }}>
+                        {{ \Carbon\Carbon::create()->month($m)->translatedFormat('F') }}
+                    </option>
+                @endfor
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label" for="end_year">Tahun:</label>
+            <select class="form-select" id="end_year" name="end_year">
+                @for ($y = now()->year - 5; $y <= now()->year + 1; $y++)
+                    <option value="{{ $y }}" {{ (isset(request()->end_year) && request()->end_year == $y) ? 'selected' : '' }}>
+                        {{ $y }}
+                    </option>
+                @endfor
+            </select>
+        </div>
+
+        <div class="col-md-1 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100">Filter</button>
+        </div>
+    </div>
+</form>
     <a href="{{ route('admin.reports.pdf') }}" class="btn btn-danger" target="_blank">
         <i class="fas fa-file-pdf me-2"></i>Cetak PDF
     </a>
@@ -66,8 +124,8 @@ const ordersChart = new Chart(ctx, {
         datasets: [{
             label: 'Penjualan Bulanan',
             data: @json($data),
-            backgroundColor: 'rgba(233, 109, 143, 0.7)',
-            borderColor: 'rgba(233, 109, 143, 1)',
+            backgroundColor: 'rgba(194, 24, 91, 0.7)', // Menggunakan warna --primary-color dengan opacity
+            borderColor: 'rgba(194, 24, 91, 1)', // Menggunakan warna --primary-color tanpa opacity
             borderWidth: 2,
             borderRadius: 6
         }]

@@ -11,25 +11,32 @@ class ProductController extends Controller
     public function show(Product $product)
     {
         $product->load('category');
-        $relatedProducts = Product::where('id_kategori', $product->id_kategori)
+        $relatedProducts = Product::with('images')->where('id_kategori', $product->id_kategori)
             ->where('id', '!=', $product->id)
             ->limit(4)
             ->get();
+        
+        // Get all combinable products for combination options
+        $combinableProducts = Product::where('is_combinable', true)
+            ->where('id', '!=', $product->id)
+            ->where('stok', '>', 0)
+            ->orderBy('name')
+            ->get();
 
-        return view('products.show', compact('product', 'relatedProducts'));
+        return view('products.show', compact('product', 'relatedProducts', 'combinableProducts'));
     }
 
     public function index(Request $request)
     {
         $categories = Category::orderBy('name')->get();
 
-        $query = Product::with('category');
+        $query = Product::with(['category', 'images']);
 
         // Search by keyword
         if ($request->filled('q')) {
             $search = trim($request->input('q'));
             $query->where(function ($q) use ($search) {
-                $q->where('nama_produk', 'like', "%{$search}%")
+                $q->where('name', 'like', "%{$search}%")
                   ->orWhere('deskripsi', 'like', "%{$search}%");
             });
         }
@@ -67,10 +74,10 @@ class ProductController extends Controller
                 $query->orderByRaw('COALESCE(harga_diskon, harga) desc');
                 break;
             case 'name_asc':
-                $query->orderBy('nama_produk', 'asc');
+                $query->orderBy('name', 'asc');
                 break;
             case 'name_desc':
-                $query->orderBy('nama_produk', 'desc');
+                $query->orderBy('name', 'desc');
                 break;
             case 'oldest':
                 $query->oldest();
@@ -108,7 +115,7 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama_produk' => 'required|string|max:150',
+            'name' => 'required|string|max:150',
             'deskripsi' => 'nullable|string',
             'harga' => 'required|numeric',
             'harga_diskon' => 'nullable|numeric',
@@ -138,7 +145,7 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         $request->validate([
-            'nama_produk' => 'required|string|max:150',
+            'name' => 'required|string|max:150',
             'deskripsi' => 'nullable|string',
             'harga' => 'required|numeric',
             'harga_diskon' => 'nullable|numeric',

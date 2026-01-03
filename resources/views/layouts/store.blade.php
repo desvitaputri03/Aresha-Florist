@@ -3,32 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Karangan Bunga Padang | Aresha Florist')</title>
+    <title>@yield('title', 'Karangan Bunga Padang')</title> {{-- Hapus "Aresha Florist" dari default title --}}
     <meta name="description" content="Aresha Florist - Menyediakan sewa karangan bunga, Papan Rustic, akrilik dan box. Gratis Ongkir sekota Padang!">
 
     @include('layouts.partials.styles')
 
     <style>
         :root {
-            --primary-color: #2E3D3A; /* deep sage green */
-            --primary-light: #3E4F4B; /* lighter sage */
-            --primary-dark: #22302D; /* darkest sage */
+            --primary-color: #E96D8F; /* Professional rose pink */
+            --primary-light: #F6A3B9;
+            --primary-dark: #C24D6D;
             --secondary-color: #FFF7F5; /* ivory blush */
-            --accent-color: #E96D8F; /* rose pink */
-            --accent-secondary: #F6A3B9; /* soft rose for hovers */
-            --leaf-color: #89A88F; /* soft sage */
-            --text-dark: #2F2F30;
-            --text-light: #5E6664;
-            --text-muted: #8C9391;
+            --accent-color: #1B3022; /* Forest green as accent now */
+            --accent-gold: #D4A373; /* Elegant muted gold */
+            --text-dark: #1A1A1A;
+            --text-light: #4A4A4A;
+            --text-muted: #7A7A7A;
             --bg-light: #FFF7F5;
             --bg-white: #ffffff;
-            --shadow-sm: 0 1px 3px 0 rgba(46, 61, 58, 0.07);
-            --shadow: 0 4px 6px -1px rgba(46, 61, 58, 0.12);
-            --shadow-lg: 0 10px 15px -3px rgba(46, 61, 58, 0.16);
-            --shadow-xl: 0 20px 25px -5px rgba(46, 61, 58, 0.2);
-            --border-radius: 12px;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+            --shadow: 0 4px 12px rgba(233, 109, 143, 0.1);
+            --shadow-lg: 0 10px 25px rgba(233, 109, 143, 0.15);
+            --border-radius: 8px;
             --border-radius-lg: 16px;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
         }
 
         /* Utility overrides for consistent contrast */
@@ -67,10 +65,11 @@
 
         /* Navigation */
         .navbar-store {
-            background: var(--bg-white);
-            border-bottom: 2px solid rgba(233, 109, 143, 0.25); /* rose tint */
-            padding: 1rem 0;
-            box-shadow: var(--shadow-sm);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(27, 48, 34, 0.1);
+            padding: 0.75rem 0;
             position: sticky;
             top: 0;
             z-index: 1000;
@@ -78,36 +77,32 @@
         }
 
         .navbar-store.scrolled {
-            box-shadow: var(--shadow-lg);
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: var(--shadow);
         }
 
         .navbar-store .nav-link {
             color: var(--text-light);
             font-weight: 500;
+            font-size: 0.95rem;
             padding: 0.5rem 1rem;
             margin: 0 0.25rem;
             border-radius: var(--border-radius);
             transition: var(--transition);
-            position: relative;
         }
 
         .navbar-store .nav-link:hover,
         .navbar-store .nav-link.active {
             color: var(--primary-color);
-            background: linear-gradient(135deg, var(--secondary-color), rgba(233, 109, 143, 0.12));
-            border: 1px solid rgba(233, 109, 143, 0.35);
+            background: var(--secondary-color);
         }
 
-        .navbar-store .nav-link.active::after {
-            content: '';
-            position: absolute;
-            bottom: -1rem;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 4px;
-            height: 4px;
-            background: var(--primary-color);
-            border-radius: 50%;
+        .navbar-brand img {
+            transition: var(--transition);
+        }
+
+        .navbar-brand:hover img {
+            transform: scale(1.05);
         }
 
         /* Buttons */
@@ -308,16 +303,17 @@
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light navbar-store" id="storeNavbar">
+    <nav class="navbar navbar-expand-lg navbar-store shadow-sm border-bottom py-3 sticky-top">
         <div class="container">
-            <a class="navbar-brand brand" href="{{ url('/') }}">
-                <img src="{{ asset('images/aresha.jpg') }}" alt="Aresha Florist Logo" style="height: 80px;">
+            <a class="navbar-brand d-flex align-items-center" href="{{ url('/') }}">
+                <img src="{{ asset('images/aresha.jpg') }}" style="height: 50px; width: 50px; object-fit: cover; border-radius: 50%; margin-right: 12px; border: 2px solid var(--primary-color);">
+                <span class="fw-bold" style="font-family: 'Playfair Display', serif; color: var(--primary-color); letter-spacing: 0.5px; font-size: 1.4rem;">Aresha Florist</span>
             </a>
-            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+            <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="nav">
-                <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-3">
+                <ul class="navbar-nav ms-auto align-items-center gap-2">
                     <li class="nav-item">
                         <a class="nav-link {{ request()->is('/') ? 'active' : '' }}" href="{{ url('/') }}">
                             <i class="fas fa-home me-1"></i>Beranda
@@ -330,45 +326,41 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('cart.*') ? 'active' : '' }}" href="{{ route('cart.index') }}">
-                            <i class="fas fa-shopping-cart me-1"></i>Keranjang
-                            <span class="badge bg-primary ms-1" id="cart-count">0</span>
+                            <div class="position-relative d-inline-block">
+                                <i class="fas fa-shopping-cart me-1"></i>Keranjang
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="cart-count" style="font-size: 0.6rem; display: none;">0</span>
+                            </div>
                         </a>
                     </li>
-                    @auth
-                        @if(auth()->user()->is_admin)
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('admin.dashboard') }}">
-                                    <i class="fas fa-gauge-high me-1"></i>Admin
-                                </a>
-                            </li>
-                        @endif
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="userMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="far fa-user me-1"></i>{{ auth()->user()->name ?? 'Akun' }}
+                    @guest
+                        <li class="nav-item ms-lg-2">
+                            <a class="btn btn-primary px-4 rounded-pill shadow-sm" style="background: var(--primary-color); border: none;" href="{{ route('login') }}">
+                                <i class="fas fa-sign-in-alt me-2"></i>Login
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                        </li>
+                    @else
+                        <li class="nav-item dropdown ms-lg-2">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user-circle fs-5 me-2" style="color: var(--primary-color);"></i>
+                                <span class="fw-medium">{{ auth()->user()->name }}</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-3 p-2" style="border-radius: var(--border-radius-lg); min-width: 200px;">
                                 @if(auth()->user()->is_admin)
-                                    <li><a class="dropdown-item" href="{{ route('admin.dashboard') }}"><i class="fas fa-gauge-high me-2"></i>Dashboard Admin</a></li>
+                                    <li><a class="dropdown-item rounded-pill py-2" href="{{ route('admin.dashboard') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>Admin Dashboard</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                @else
+                                    <li><a class="dropdown-item rounded-pill py-2" href="{{ route('customer.dashboard') }}"><i class="fas fa-user-circle me-2 text-muted"></i>Dashboard Saya</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                 @endif
                                 <li>
-                                    <form action="{{ route('logout') }}" method="POST" class="px-3 py-1">
+                                    <form action="{{ route('logout') }}" method="POST" class="m-0">
                                         @csrf
-                                        <button type="submit" class="btn btn-link p-0 text-danger"><i class="fas fa-right-from-bracket me-2"></i>Logout</button>
+                                        <button type="submit" class="dropdown-item rounded-pill py-2 text-danger"><i class="fas fa-sign-out-alt me-2"></i>Logout</button>
                                     </form>
                                 </li>
                             </ul>
                         </li>
-                    @else
-                        <li class="nav-item d-flex align-items-center gap-2">
-                            <a class="nav-link" href="{{ route('login') }}">
-                                <i class="fas fa-right-to-bracket me-1"></i>Login
-                            </a>
-                            <a class="nav-link" href="{{ route('register') }}">
-                                <i class="fas fa-user-plus me-1"></i>Register
-                            </a>
-                        </li>
-                    @endauth
+                    @endguest
                 </ul>
             </div>
         </div>
@@ -377,66 +369,73 @@
     @yield('content')
 
     <!-- Footer -->
-    <footer class="footer-dark py-5 mt-5">
+    <footer class="bg-dark py-5 mt-5 text-white">
         <div class="container">
-            <div class="row">
+            <div class="row g-4">
                 <div class="col-lg-4 mb-4">
-                    <h5 class="mb-3" style="color: var(--accent-color);">
-                        <img src="{{ asset('images/aresha.jpg') }}" alt="Aresha Florist Logo" style="height: 60px; margin-right: 10px;">Aresha Florist
-                    </h5>
-                    <p class="text-muted">Toko Karangan Bunga online terpercaya dengan pilihan papan karangan bunga, rustic, akrilik dan box terindah untuk setiap momen spesial. Kami berkomitmen memberikan kualitas terbaik dengan pelayanan yang memuaskan.</p>
+                    <div class="d-flex align-items-center mb-4">
+                        <img src="{{ asset('images/aresha.jpg') }}" alt="Logo" style="height: 50px; width: 50px; object-fit: cover; border-radius: 50%; margin-right: 15px; border: 2px solid white;">
+                        <h5 class="mb-0 text-white" style="font-family: 'Playfair Display', serif;">
+                            Aresha Florist
+                        </h5>
+                    </div>
+                    <p class="text-white-50 small mb-4">Toko Papan Karangan Bunga online terpercaya di Padang. Kami menyediakan Papan Rustic, Akrilik, dan Box untuk setiap momen spesial Anda. Gratis ongkir sekota Padang!</p>
                     <div class="d-flex gap-3">
-                        <a href="#" class="text-light fs-5"><i class="fab fa-facebook-f"></i></a>
-                        <a href="https://www.instagram.com/areshaflorist/" class="text-light fs-5" target="_blank"><i class="fab fa-instagram"></i></a>
-                        <a href="https://wa.me/6281374428198" class="text-light fs-5" target="_blank"><i class="fab fa-whatsapp"></i></a>
-                        <a href="#" class="text-light fs-5"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-white-50 hover-white"><i class="fab fa-facebook-f"></i></a>
+                        <a href="https://www.instagram.com/areshaflorist/" class="text-white-50 hover-white" target="_blank"><i class="fab fa-instagram"></i></a>
+                        <a href="https://wa.me/6281374428198" class="text-white-50 hover-white" target="_blank"><i class="fab fa-whatsapp"></i></a>
                     </div>
                 </div>
                 <div class="col-lg-2 col-md-6 mb-4">
-                    <h6 class="mb-3">Produk</h6>
+                    <h6 class="text-white mb-4">Produk</h6>
                     <ul class="list-unstyled">
-                        <li><a href="#" class="text-muted text-decoration-none">Papan Bunga</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Papan Rustic</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Akrilik</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Box Bunga</a></li>
+                        <li class="mb-2"><a href="{{ route('products.index') }}" class="text-white-50 text-decoration-none hover-white">Papan Bunga</a></li>
+                        <li class="mb-2"><a href="{{ route('products.index') }}" class="text-white-50 text-decoration-none hover-white">Papan Rustic</a></li>
+                        <li class="mb-2"><a href="{{ route('products.index') }}" class="text-white-50 text-decoration-none hover-white">Akrilik</a></li>
+                        <li class="mb-2"><a href="{{ route('products.index') }}" class="text-white-50 text-decoration-none hover-white">Box Bunga</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-2 col-md-6 mb-4">
-                    <h6 class="mb-3">Layanan</h6>
+                    <h6 class="text-white mb-4">Bantuan</h6>
                     <ul class="list-unstyled">
-                        <li><a href="#" class="text-muted text-decoration-none">Pengiriman</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Custom Order</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Konsultasi</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Garansi</a></li>
+                        <li class="mb-2"><a href="{{ url('/') }}#how-to-order" class="text-white-50 text-decoration-none hover-white">Cara Pesan</a></li>
+                        <li class="mb-2"><a href="{{ url('/') }}#shipping" class="text-white-50 text-decoration-none hover-white">Pengiriman</a></li>
+                        <li class="mb-2"><a href="{{ url('/') }}#about" class="text-white-50 text-decoration-none hover-white">Tentang Kami</a></li>
+                        <li class="mb-2"><a href="#contact-info" class="text-white-50 text-decoration-none hover-white">Kontak</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-4 mb-4">
-                    <h6 class="mb-3">Kontak Kami</h6>
-                    <div class="d-flex align-items-center mb-2">
-                        <i class="fas fa-map-marker-alt me-2"></i>
-                        <span class="text-muted">Komplek kencana blok B 11 kel . gurun laweh kec .nanggalo Padang, Koto Padang, Sumatera Barat, Indonesia 25165</span>
+                    <h6 class="text-white mb-4">Kontak Kami</h6>
+                    <div class="d-flex mb-3">
+                        <i class="fas fa-map-marker-alt mt-1 me-3 text-white-50"></i>
+                        <span class="text-white-50 small" id="contact-info">Komplek Kencana Blok B 11, Kel. Gurun Laweh, Kec. Nanggalo, Kota Padang, Sumatera Barat 25165</span>
                     </div>
-                    <div class="d-flex align-items-center mb-2">
-                        <i class="fas fa-phone me-2"></i>
-                        <span class="text-muted">081374428198</span>
+                    <div class="d-flex mb-3">
+                        <i class="fas fa-phone me-3 text-white-50"></i>
+                        <span class="text-white-50 small">0813 7442 8198</span>
                     </div>
-                    <div class="d-flex align-items-center mb-2">
-                        <i class="fas fa-envelope me-2"></i>
-                        <span class="text-muted">info@areshaflorist.com</span>
+                    <div class="d-flex mb-3">
+                        <i class="fab fa-instagram me-3 text-white-50"></i>
+                        <a href="https://www.instagram.com/areshaflorist/" target="_blank" class="text-white-50 small text-decoration-none hover-white">@areshaflorist</a>
                     </div>
                 </div>
             </div>
-            <hr class="my-4">
+            <hr class="my-5 border-secondary">
             <div class="row align-items-center">
-                <div class="col-md-6">
-                    <p class="text-muted mb-0">&copy; 2024 Aresha Florist. All rights reserved.</p>
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="text-white-50 small mb-0">&copy; {{ date('Y') }} Aresha Florist Padang. All rights reserved.</p>
                 </div>
-                <div class="col-md-6 text-md-end">
-                    <p class="text-muted mb-0">Made with <i class="fas fa-heart text-danger"></i> in Indonesia</p>
+                <div class="col-md-6 text-center text-md-end">
+                    <p class="text-white-50 small mb-0">Premium Florist Experience</p>
                 </div>
             </div>
         </div>
     </footer>
+
+    <style>
+        .hover-white:hover { color: white !important; }
+        .footer-dark { background-color: #121212; }
+    </style>
 
     @include('layouts.partials.scripts')
     
@@ -446,7 +445,13 @@
         fetch('{{ route("cart.count") }}')
             .then(response => response.json())
             .then(data => {
-                document.getElementById('cart-count').textContent = data.count;
+                const countBadge = document.getElementById('cart-count');
+                countBadge.textContent = data.count;
+                if (data.count > 0) {
+                    countBadge.style.display = 'inline-block';
+                } else {
+                    countBadge.style.display = 'none';
+                }
             })
             .catch(error => console.log('Error updating cart count:', error));
     }

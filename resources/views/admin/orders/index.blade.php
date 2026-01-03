@@ -93,7 +93,7 @@
                     <tr>
                         <th>No. Pesanan</th>
                         <th>Customer</th>
-                        <th>Total</th>
+                        <th class="text-end">Total</th>
                         <th>Metode Pembayaran</th>
                         <th>Status Pembayaran</th>
                         <th>Status Pesanan</th>
@@ -105,7 +105,7 @@
                     @foreach($orders as $order)
                     <tr>
                         <td>
-                            <strong>{{ $order->order_number }}</strong>
+                            <a href="{{ route('admin.orders.show', $order->id) }}" class="text-decoration-none text-dark"><strong>{{ $order->order_number }}</strong></a>
                         </td>
                         <td>
                             <div>
@@ -122,16 +122,16 @@
                                 @endif
                             </div>
                         </td>
-                        <td>
+                        <td class="text-end">
                             <strong>Rp{{ number_format($order->grand_total, 0, ',', '.') }}</strong>
                         </td>
                         <td>
                             @if($order->payment_method == 'cash')
-                                <span class="badge" style="background: linear-gradient(90deg, #E573A6 60%, #F6A3B9 100%); color: #fff;">
+                                <span class="badge bg-primary text-white">
                                     <i class="fas fa-money-bill-wave me-1"></i>Cash
                                 </span>
                             @else
-                                <span class="badge" style="background: linear-gradient(90deg, #FFD966 60%, #E573A6 100%); color: #B94E7A;">
+                                <span class="badge bg-info text-dark">
                                     <i class="fas fa-university me-1"></i>Transfer
                                 </span>
                             @endif
@@ -139,45 +139,45 @@
                         <td>
                             @switch($order->payment_status)
                                 @case('pending')
-                                    <span class="badge" style="background: linear-gradient(90deg, #FFD966 60%, #E573A6 100%); color: #B94E7A;">Pending</span>
+                                    <span class="badge bg-warning text-dark">Pending</span>
                                     @break
                                 @case('paid')
-                                    <span class="badge" style="background: linear-gradient(90deg, #A8D5BA 60%, #E573A6 100%); color: #fff;">Paid</span>
+                                    <span class="badge bg-success text-white">Paid</span>
                                     @break
                                 @case('failed')
-                                    <span class="badge" style="background: linear-gradient(90deg, #E573A6 60%, #B94E7A 100%); color: #fff;">Failed</span>
+                                    <span class="badge bg-danger text-white">Failed</span>
                                     @break
                             @endswitch
                         </td>
                         <td>
                             @switch($order->order_status)
                                 @case('pending')
-                                    <span class="badge" style="background: linear-gradient(90deg, #FFD966 60%, #E573A6 100%); color: #B94E7A;">Pending</span>
+                                    <span class="badge bg-warning text-dark">Pending</span>
                                     @break
                                 @case('processing')
-                                    <span class="badge" style="background: linear-gradient(90deg, #F6A3B9 60%, #A8D5BA 100%); color: #fff;">Processing</span>
+                                    <span class="badge bg-info text-white">Processing</span>
                                     @break
                                 @case('shipped')
-                                    <span class="badge" style="background: linear-gradient(90deg, #E573A6 60%, #FFD966 100%); color: #B94E7A;">Shipped</span>
+                                    <span class="badge bg-warning text-dark">Shipped</span>
                                     @break
                                 @case('delivered')
-                                    <span class="badge" style="background: linear-gradient(90deg, #A8D5BA 60%, #E573A6 100%); color: #fff;">Delivered</span>
+                                    <span class="badge bg-success text-white">Delivered</span>
                                     @break
                                 @case('cancelled')
-                                    <span class="badge" style="background: linear-gradient(90deg, #E573A6 60%, #B94E7A 100%); color: #fff;">Cancelled</span>
+                                    <span class="badge bg-danger text-white">Cancelled</span>
                                     @break
                             @endswitch
                         </td>
                         <td>
-                            <small>{{ $order->created_at->format('d M Y H:i') }}</small>
+                            <small>{{ $order->created_at->isoFormat('DD MMMM YYYY HH:mm') }}</small>
                         </td>
                         <td>
                             <div class="btn-group" role="group">
                                 <a href="{{ route('admin.orders.show', $order->id) }}" 
-                                   class="btn btn-sm" style="background: linear-gradient(90deg, #E573A6 60%, #F6A3B9 100%); color: #fff;" title="Lihat Detail">
+                                   class="btn btn-sm btn-primary" title="Lihat Detail">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <button type="button" class="btn btn-sm" style="background: linear-gradient(90deg, #FFD966 60%, #E573A6 100%); color: #B94E7A;" 
+                                <button type="button" class="btn btn-sm btn-info text-dark" 
                                         onclick="updateStatus({{ $order->id }})" title="Update Status">
                                     <i class="fas fa-edit"></i>
                                 </button>
@@ -185,7 +185,7 @@
                                       method="POST" class="d-inline">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-sm" style="background: linear-gradient(90deg, #E573A6 60%, #B94E7A 100%); color: #fff;"
+                                    <button type="submit" class="btn btn-sm btn-danger text-white"
                                             onclick="return confirm('Hapus pesanan ini?')" title="Hapus">
                                         <i class="fas fa-trash"></i>
                                     </button>

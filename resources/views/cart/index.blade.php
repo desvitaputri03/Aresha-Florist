@@ -42,19 +42,38 @@
                                 <div class="col-md-2">
                                     @if($item->product->gambar)
                                         <img src="{{ asset('storage/'.$item->product->gambar) }}" 
-                                             alt="{{ $item->product->nama_produk }}" 
+                                             alt="{{ $item->product->name }}" 
                                              class="img-fluid rounded">
                                     @else
                                         <img src="https://images.unsplash.com/photo-1518895949257-7621c3c786d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" 
-                                             alt="{{ $item->product->nama_produk }}" 
+                                             alt="{{ $item->product->name }}" 
                                              class="img-fluid rounded">
                                     @endif
                                 </div>
                                 <div class="col-md-4">
-                                    <h5 class="fw-bold mb-2">{{ $item->product->nama_produk }}</h5>
+                                    <h5 class="fw-bold mb-2">{{ $item->product->name }}</h5>
                                     <p class="text-muted mb-2">{{ Str::limit($item->product->deskripsi, 80) }}</p>
+                                    @if($item->is_combined_order)
+                                        <div class="mb-2">
+                                            <span class="badge bg-primary">
+                                                <i class="fas fa-expand-arrows-alt me-1"></i>
+                                                Papan Gandeng
+                                                @if($item->combined_quantity)
+                                                    ({{ $item->combined_quantity }} Papan)
+                                                @elseif($item->combined_custom_request)
+                                                    (Custom)
+                                                @endif
+                                            </span>
+                                        </div>
+                                        @if($item->combined_custom_request)
+                                            <div class="alert alert-info py-2 px-3 mb-2 small">
+                                                <strong>Permintaan Khusus:</strong><br>
+                                                {{ $item->combined_custom_request }}
+                                            </div>
+                                        @endif
+                                    @endif
                                     <small class="text-muted">
-                                        <i class="fas fa-tag me-1"></i>{{ $item->product->category->nama_kategori ?? 'Kategori' }}
+                                        <i class="fas fa-tag me-1"></i>{{ $item->product->category->name ?? 'Kategori' }}
                                     </small>
                                 </div>
                                 <div class="col-md-2">
@@ -77,10 +96,28 @@
                                 <div class="col-md-2 text-center">
                                     @php
                                         $price = $item->product->harga_diskon ?? $item->product->harga;
-                                        $itemTotal = $price * $item->quantity;
+                                        // Apply combined board pricing
+                                        if ($item->is_combined_order && $item->product->is_combinable) {
+                                            if ($item->combined_quantity) {
+                                                $itemTotal = ($price * ($item->product->combinable_multiplier ?? 1)) * $item->quantity;
+                                            } elseif ($item->combined_custom_request) {
+                                                // Custom request - use conservative estimate
+                                                $itemTotal = ($price * ($item->product->combinable_multiplier ?? 3)) * $item->quantity;
+                                            } else {
+                                                $itemTotal = $price * $item->quantity;
+                                            }
+                                        } else {
+                                            $itemTotal = $price * $item->quantity;
+                                        }
                                     @endphp
                                     <div class="fw-bold text-primary">Rp{{ number_format($itemTotal, 0, ',', '.') }}</div>
-                                    @if($item->product->harga_diskon)
+                                    @if($item->combined_custom_request)
+                                        <small class="text-warning d-block mt-1">
+                                            <i class="fas fa-exclamation-triangle me-1"></i>
+                                            Harga akan dikonfirmasi
+                                        </small>
+                                    @endif
+                                    @if($item->product->harga_diskon && !$item->is_combined_order)
                                         <small class="text-muted text-decoration-line-through">
                                             Rp{{ number_format($item->product->harga * $item->quantity, 0, ',', '.') }}
                                         </small>

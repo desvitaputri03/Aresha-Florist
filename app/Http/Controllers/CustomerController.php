@@ -28,14 +28,17 @@ class CustomerController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
-            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $request->validate([
+            'password' => ['nullable', 'string', 'confirmed'],
         ]);
 
         $user->name = $validated['name'];
         $user->email = $validated['email'];
 
-        if (!empty($validated['password'])) {
-            $user->password = Hash::make($validated['password']);
+        if (!empty($request->password)) {
+            $user->password = Hash::make($request->password);
         }
 
         $user->save();
