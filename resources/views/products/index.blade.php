@@ -177,6 +177,62 @@
     .product-overlay {
         display: none;
     }
+
+    /* Pagination Styling */
+    .pagination {
+        gap: 0.5rem;
+    }
+    .pagination .page-link {
+        border: 2px solid #e5e7eb;
+        color: var(--text-dark);
+        padding: 0.4rem 0.75rem !important;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        font-size: 0.875rem !important;
+        min-width: 36px !important;
+        height: 36px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    .pagination .page-link:hover {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+        transform: translateY(-2px);
+    }
+    .pagination .page-item.active .page-link {
+        background: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+    }
+    .pagination .page-item.disabled .page-link {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    .pagination svg,
+    .pagination .w-3 {
+        width: 16px !important;
+        height: 16px !important;
+    }
+    .pagination .h-3 {
+        height: 16px !important;
+    }
+    /* Force small size for all pagination SVGs */
+    .pagination span svg,
+    .pagination a svg,
+    nav svg {
+        width: 16px !important;
+        height: 16px !important;
+        max-width: 16px !important;
+        max-height: 16px !important;
+    }
+    .pagination .page-link svg {
+        width: 14px !important;
+        height: 14px !important;
+    }
 </style>
 
 <script>
