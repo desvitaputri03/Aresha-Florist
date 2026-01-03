@@ -14,7 +14,13 @@ class GeoDataSeeder extends Seeder
     public function run(): void
     {
         // Nonaktifkan pemeriksaan foreign key constraints sementara
-        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        $driver = DB::getDriverName();
+        
+        if ($driver === 'mysql') {
+            DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        } elseif ($driver === 'sqlite') {
+            DB::statement('PRAGMA foreign_keys=OFF');
+        }
 
         // Pastikan tabel kosong sebelum seeding
         DB::table('districts')->truncate();
@@ -89,6 +95,10 @@ class GeoDataSeeder extends Seeder
         ]);
 
         // Aktifkan kembali pemeriksaan foreign key constraints
-        DB::statement('SET FOREIGN_KEY_CHECKS=1');
+        if ($driver === 'mysql') {
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
+        } elseif ($driver === 'sqlite') {
+            DB::statement('PRAGMA foreign_keys=ON');
+        }
     }
 }
