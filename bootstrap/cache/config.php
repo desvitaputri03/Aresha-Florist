@@ -64,7 +64,7 @@
     'driver' => 'bcrypt',
     'bcrypt' => 
     array (
-      'rounds' => '12',
+      'rounds' => '10',
       'verify' => true,
       'limit' => NULL,
     ),
@@ -484,7 +484,7 @@
   ),
   'logging' => 
   array (
-    'default' => 'stack',
+    'default' => 'single',
     'deprecations' => 
     array (
       'channel' => NULL,
@@ -505,14 +505,14 @@
       array (
         'driver' => 'single',
         'path' => '/home/nan/cloud/var/www/budi/html/web/Aresha-Florist/storage/logs/laravel.log',
-        'level' => 'debug',
+        'level' => 'warning',
         'replace_placeholders' => true,
       ),
       'daily' => 
       array (
         'driver' => 'daily',
         'path' => '/home/nan/cloud/var/www/budi/html/web/Aresha-Florist/storage/logs/laravel.log',
-        'level' => 'debug',
+        'level' => 'warning',
         'days' => 14,
         'replace_placeholders' => true,
       ),
@@ -522,13 +522,13 @@
         'url' => NULL,
         'username' => 'Laravel Log',
         'emoji' => ':boom:',
-        'level' => 'debug',
+        'level' => 'warning',
         'replace_placeholders' => true,
       ),
       'papertrail' => 
       array (
         'driver' => 'monolog',
-        'level' => 'debug',
+        'level' => 'warning',
         'handler' => 'Monolog\\Handler\\SyslogUdpHandler',
         'handler_with' => 
         array (
@@ -544,7 +544,7 @@
       'stderr' => 
       array (
         'driver' => 'monolog',
-        'level' => 'debug',
+        'level' => 'warning',
         'handler' => 'Monolog\\Handler\\StreamHandler',
         'handler_with' => 
         array (
@@ -559,14 +559,14 @@
       'syslog' => 
       array (
         'driver' => 'syslog',
-        'level' => 'debug',
+        'level' => 'warning',
         'facility' => 8,
         'replace_placeholders' => true,
       ),
       'errorlog' => 
       array (
         'driver' => 'errorlog',
-        'level' => 'debug',
+        'level' => 'warning',
         'replace_placeholders' => true,
       ),
       'null' => 

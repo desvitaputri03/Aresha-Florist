@@ -179,25 +179,37 @@
 </form>
 
 <style>
-    /* Pagination styling untuk admin */
-    .pagination {
-        gap: 4px;
+    /* Pagination styling untuk admin - kecil */
+    div.d-flex.justify-content-center .pagination {
+        gap: 2px !important;
     }
     
-    .pagination .page-link {
-        padding: 4px 8px;
-        font-size: 13px;
-        min-width: auto;
-        border-radius: 4px;
+    div.d-flex.justify-content-center .pagination .page-item {
+        margin: 0 !important;
     }
     
-    .pagination .page-item.active .page-link {
-        background-color: var(--primary-color, #007bff);
-        border-color: var(--primary-color, #007bff);
+    div.d-flex.justify-content-center .pagination .page-link {
+        padding: 3px 6px !important;
+        font-size: 12px !important;
+        min-width: auto !important;
+        border-radius: 3px !important;
+        line-height: 1 !important;
+        height: auto !important;
     }
     
-    .pagination .page-link:hover {
-        background-color: #f0f0f0;
+    div.d-flex.justify-content-center .pagination .page-item.active .page-link {
+        background-color: #007bff !important;
+        border-color: #007bff !important;
+    }
+    
+    div.d-flex.justify-content-center .pagination .page-link:hover {
+        background-color: #f0f0f0 !important;
+        color: #007bff !important;
+    }
+    
+    div.d-flex.justify-content-center .pagination .page-item.disabled .page-link {
+        padding: 3px 6px !important;
+        font-size: 12px !important;
     }
 </style>
 
