@@ -102,14 +102,14 @@
         <!-- Customer Information -->
         <div class="card mb-4">
             <div class="card-header">
-                <h5 class="mb-0">Informasi Customer</h5>
+                <h5 class="mb-0">Informasi Pemesan</h5>
             </div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-6">
                         <table class="table table-borderless">
                             <tr>
-                                <td><strong>Nama:</strong></td>
+                                <td width="120"><strong>Nama:</strong></td>
                                 <td>{{ $order->customer_name }}</td>
                             </tr>
                             <tr>
@@ -124,13 +124,50 @@
                     </div>
                     <div class="col-md-6">
                         <div>
-                            <strong>Alamat:</strong>
+                            <strong>Alamat Pengiriman (Padang):</strong>
                             <p class="mt-2">{{ $order->customer_address }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detail Karangan Bunga (Florist Specific) -->
+        <div class="card mb-4 border-info shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-flower me-2"></i>Detail Karangan Bunga</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <td width="150"><strong>Nama Penerima:</strong></td>
+                                <td class="text-primary fw-bold">{{ $order->recipient_name }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Tanggal Kirim:</strong></td>
+                                <td class="text-danger fw-bold">
+                                    {{ \Carbon\Carbon::parse($order->delivery_date)->format('d F Y') }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Jenis Acara:</strong></td>
+                                <td>{{ $order->event_type ?? 'N/A' }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded border">
+                            <strong class="text-dark d-block mb-2"><i class="fas fa-edit me-2"></i>Pesan di Papan (Custom Message):</strong>
+                            <div class="p-3 bg-white border rounded shadow-sm" style="font-size: 1.1rem; border-left: 5px solid var(--primary-color) !important;">
+                                <em class="text-dark">"{{ $order->custom_message }}"</em>
+                            </div>
                         </div>
                         @if($order->notes)
                         <div class="mt-3">
-                            <strong>Catatan:</strong>
-                            <p class="mt-2">{{ $order->notes }}</p>
+                            <strong>Catatan Tambahan:</strong>
+                            <p class="mt-1 text-muted">{{ $order->notes }}</p>
                         </div>
                         @endif
                     </div>
@@ -138,69 +175,27 @@
             </div>
         </div>
 
-        <!-- Order Items -->
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Item Pesanan</h5>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Produk</th>
-                                <th>Harga</th>
-                                <th>Qty</th>
-                                <th>Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($order->orderItems as $item)
-                            <tr>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        @if($item->product->gambar)
-                                            <img src="{{ asset('storage/'.$item->product->gambar) }}" 
-                                                 alt="{{ $item->product->name }}" 
-                                                 class="me-3" style="width: 50px; height: 50px; object-fit: cover;">
-                                        @endif
-                                        <div>
-                                            <div class="fw-bold">{{ $item->product->name }}</div>
-                                            <small class="text-muted">{{ $item->product->category->name ?? 'Kategori' }}</small>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>Rp{{ number_format($item->price, 0, ',', '.') }}</td>
-                                <td>{{ $item->quantity }}</td>
-                                <td><strong>Rp{{ number_format($item->total_price, 0, ',', '.') }}</strong></td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- Order Summary & Actions -->
     <div class="col-lg-4">
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="mb-0">Ringkasan Pesanan</h5>
+        <div class="card mb-4 shadow-sm border-primary">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Ringkasan Pembayaran</h5>
             </div>
             <div class="card-body">
                 <div class="d-flex justify-content-between mb-2">
-                    <span>Subtotal:</span>
+                    <span class="text-muted">Subtotal Produk:</span>
                     <span>Rp{{ number_format($order->total_amount, 0, ',', '.') }}</span>
                 </div>
                 <div class="d-flex justify-content-between mb-2">
-                    <span>Ongkir:</span>
-                    <span>Rp{{ number_format($order->shipping_cost, 0, ',', '.') }}</span>
+                    <span class="text-muted">Biaya Pengiriman:</span>
+                    <span class="text-success">Rp{{ number_format($order->shipping_cost, 0, ',', '.') }} (Gratis)</span>
                 </div>
                 <hr>
-                <div class="d-flex justify-content-between">
-                    <span class="h5 mb-0">Total:</span>
-                    <span class="h5 text-primary fw-bold mb-0">Rp{{ number_format($order->grand_total, 0, ',', '.') }}</span>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="h5 mb-0 fw-bold">TOTAL BAYAR:</span>
+                    <span class="h4 text-primary fw-bold mb-0">Rp{{ number_format($order->grand_total, 0, ',', '.') }}</span>
                 </div>
             </div>
         </div>

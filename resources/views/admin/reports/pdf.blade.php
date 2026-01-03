@@ -54,10 +54,10 @@
     </style>
 </head>
 <body>
-    <h2>Laporan Pesanan Terbaru</h2>
+    <h2>Laporan Penjualan Aresha Florist</h2>
     <div class="header-info">
-        <strong>Aresha Florist</strong><br>
-        Dicetak pada: {{ now()->format('d F Y H:i:s') }}
+        <strong>Periode: {{ $periodeStr }}</strong><br>
+        Dicetak pada: {{ now()->translatedFormat('d F Y H:i:s') }}
     </div>
     
     <table>
@@ -80,30 +80,30 @@
                 <td>{{ $order->user ? $order->user->name : $order->customer_name }}</td>
                 <td>{{ $order->user ? $order->user->email : $order->customer_email }}</td>
                 <td class="text-right">Rp{{ number_format($order->grand_total, 0, ',', '.') }}</td>
-                <td class="text-center">{{ ucfirst(str_replace('_', ' ', $order->order_status)) }}</td>
-                <td class="text-center">{{ $order->created_at->format('d M Y H:i') }}</td>
+                <td class="text-center">{{ ucfirst(str_replace('_', ' ', $order->payment_status)) }}</td>
+                <td class="text-center">{{ $order->created_at->format('d/m/Y') }}</td>
             </tr>
             @empty
             <tr>
-                <td colspan="7" class="text-center">Tidak ada pesanan</td>
+                <td colspan="7" class="text-center">Tidak ada data penjualan pada periode ini</td>
             </tr>
             @endforelse
         </tbody>
         <tfoot>
             <tr>
                 <td colspan="4" style="text-align: right; font-weight: bold; padding-top: 10px;">
-                    Total Pesanan:
+                    Total Unit Terjual:
                 </td>
                 <td colspan="3" style="font-weight: bold; padding-top: 10px;">
-                    {{ $orders->count() }} pesanan
+                    {{ $totalOrders }} Pesanan
                 </td>
             </tr>
             <tr>
                 <td colspan="4" style="text-align: right; font-weight: bold;">
-                    Total Pendapatan:
+                    TOTAL PENDAPATAN:
                 </td>
                 <td colspan="3" style="font-weight: bold; color: #C2185B;">
-                    Rp{{ number_format($orders->sum('grand_total'), 0, ',', '.') }}
+                    Rp{{ number_format($totalRevenue, 0, ',', '.') }}
                 </td>
             </tr>
         </tfoot>

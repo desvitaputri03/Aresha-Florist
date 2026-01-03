@@ -21,7 +21,7 @@
             <label class="form-label" for="start_month">Dari Bulan:</label>
             <select class="form-select" id="start_month" name="start_month">
                 @for ($m = 1; $m <= 12; $m++)
-                    <option value="{{ $m }}" {{ (isset(request()->start_month) && request()->start_month == $m) ? 'selected' : '' }}>
+                    <option value="{{ $m }}" {{ $startMonth == $m ? 'selected' : '' }}>
                         {{ \Carbon\Carbon::create()->month($m)->translatedFormat('F') }}
                     </option>
                 @endfor
@@ -32,7 +32,7 @@
             <label class="form-label" for="start_year">Tahun:</label>
             <select class="form-select" id="start_year" name="start_year">
                 @for ($y = now()->year - 5; $y <= now()->year + 1; $y++)
-                    <option value="{{ $y }}" {{ (isset(request()->start_year) && request()->start_year == $y) ? 'selected' : '' }}>
+                    <option value="{{ $y }}" {{ $startYear == $y ? 'selected' : '' }}>
                         {{ $y }}
                     </option>
                 @endfor
@@ -43,7 +43,7 @@
             <label class="form-label" for="end_month">Sampai Bulan:</label>
             <select class="form-select" id="end_month" name="end_month">
                 @for ($m = 1; $m <= 12; $m++)
-                    <option value="{{ $m }}" {{ (isset(request()->end_month) && request()->end_month == $m) ? 'selected' : '' }}>
+                    <option value="{{ $m }}" {{ $endMonth == $m ? 'selected' : '' }}>
                         {{ \Carbon\Carbon::create()->month($m)->translatedFormat('F') }}
                     </option>
                 @endfor
@@ -54,7 +54,7 @@
             <label class="form-label" for="end_year">Tahun:</label>
             <select class="form-select" id="end_year" name="end_year">
                 @for ($y = now()->year - 5; $y <= now()->year + 1; $y++)
-                    <option value="{{ $y }}" {{ (isset(request()->end_year) && request()->end_year == $y) ? 'selected' : '' }}>
+                    <option value="{{ $y }}" {{ $endYear == $y ? 'selected' : '' }}>
                         {{ $y }}
                     </option>
                 @endfor
@@ -66,7 +66,7 @@
         </div>
     </div>
 </form>
-    <a href="{{ route('admin.reports.pdf') }}" class="btn btn-danger" target="_blank">
+    <a href="{{ route('admin.reports.pdf', request()->all()) }}" class="btn btn-danger shadow-sm" target="_blank">
         <i class="fas fa-file-pdf me-2"></i>Cetak PDF
     </a>
 </div>

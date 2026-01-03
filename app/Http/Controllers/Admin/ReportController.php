@@ -16,21 +16,42 @@ class ReportController extends Controller
 {
     public function index(Request $request)
     {
-        $period = $request->input('period', 'monthly'); // Default to monthly
-        $startMonth = $request->input('start_month');
-        $startYear = $request->input('start_year');
-        $endMonth = $request->input('end_month');
-        $endYear = $request->input('end_year');
-
-        // Menggunakan Carbon untuk tanggal
+        $period = $request->input('period', 'monthly');
+        
         $now = now();
+        $defaultStart = $now->copy()->subMonths(11);
+        
+        $startMonth = $request->input('start_month', $defaultStart->month);
+        $startYear = $request->input('start_year', $defaultStart->year);
+        $endMonth = $request->input('end_month', $now->month);
+        $endYear = $request->input('end_year', $now->year);
 
-        // Statistik Umum
-        $totalOrders = Order::count();
-        $totalRevenue = Order::where('payment_status', 'paid')->sum('grand_total');
+        // Pastikan variabel dilempar balik ke view untuk seleksi filter
+        $request->merge([
+            'start_month' => $startMonth,
+            'start_year' => $startYear,
+            'end_month' => $endMonth,
+            'end_year' => $endYear
+        ]);
 
-        // Produk Terlaris
-        $topSellingProduct = OrderItem::select(
+        $startDate = Carbon::create($startYear, $startMonth, 1)->startOfMonth();
+        $endDate = Carbon::create($endYear, $endMonth, 1)->endOfMonth();
+
+        // Statistik Berdasarkan Filter (Hanya Pesanan yang SUDAH DIBAYAR/PAID)
+        $totalOrders = Order::whereBetween('created_at', [$startDate, $endDate])
+            ->where('payment_status', 'paid')
+            ->count();
+
+        $totalRevenue = Order::whereBetween('created_at', [$startDate, $endDate])
+            ->where('payment_status', 'paid')
+            ->sum('grand_total');
+
+        // Produk Terlaris Berdasarkan Filter (Hanya dari pesanan paid)
+        $topSellingProduct = OrderItem::whereHas('order', function($q) use ($startDate, $endDate) {
+                $q->whereBetween('created_at', [$startDate, $endDate])
+                  ->where('payment_status', 'paid');
+            })
+            ->select(
                 'product_id',
                 DB::raw('SUM(quantity) as total_quantity_sold')
             )
@@ -39,38 +60,25 @@ class ReportController extends Controller
             ->with('product')
             ->first();
 
-        // Pelanggan Aktif (memiliki setidaknya satu pesanan)
-        $activeCustomers = User::has('orders')->count();
+        // Pelanggan Aktif Berdasarkan Filter (Hanya yang memiliki pesanan paid)
+        $activeCustomers = User::whereHas('orders', function($q) use ($startDate, $endDate) {
+                $q->whereBetween('created_at', [$startDate, $endDate])
+                  ->where('payment_status', 'paid');
+            })->count();
 
-        // Data untuk Grafik Penjualan
+        // Data untuk Grafik Penjualan (Tetap tampilkan 12 bulan terakhir jika filter tidak disetel manual? 
+        // Tidak, sebaiknya ikuti filter agar grafik sinkron dengan tabel statistik di bawahnya)
+        
         $salesQuery = Order::select(
                 DB::raw('YEAR(created_at) as year'),
-                DB::raw('MONTH(created_at) as period_unit'), // Selalu gunakan bulanan
+                DB::raw('MONTH(created_at) as period_unit'),
                 DB::raw('SUM(grand_total) as total_sales')
             )
             ->where('payment_status', 'paid')
+            ->whereBetween('created_at', [$startDate, $endDate])
             ->groupBy('year', 'period_unit')
             ->orderBy('year')
             ->orderBy('period_unit');
-
-        $startDate = null;
-        $endDate = null;
-
-        if ($startMonth && $startYear) {
-            $startDate = Carbon::create($startYear, $startMonth, 1)->startOfMonth();
-            $salesQuery->where('created_at', '>=', $startDate);
-        }
-
-        if ($endMonth && $endYear) {
-            $endDate = Carbon::create($endYear, $endMonth, 1)->endOfMonth();
-            $salesQuery->where('created_at', '<=', $endDate);
-        }
-
-        // Default jika tidak ada filter tanggal yang disediakan
-        if (!$startDate && !$endDate) {
-        // Default jika tidak ada filter tanggal yang disediakan, selalu gunakan bulanan
-        $salesQuery->where('created_at', '>=', $now->copy()->subMonths(11)->startOfMonth());
-        }
 
         $salesData = $salesQuery->get();
 
@@ -78,15 +86,13 @@ class ReportController extends Controller
         $data = [];
         
         if ($period == 'monthly') {
-            $currentDate = $startDate ?? $now->copy()->subMonths(11)->startOfMonth();
-            $finalDate = $endDate ?? $now->copy()->endOfMonth();
+            $currentDate = $startDate->copy();
+            $finalDate = $endDate->copy();
 
-            \Carbon\Carbon::setLocale('id'); // Atur locale ke Bahasa Indonesia
+            \Carbon\Carbon::setLocale('id');
             while ($currentDate->lte($finalDate)) {
                 $date = $currentDate->copy();
-                
-                // Gunakan format bahasa Indonesia untuk bulan
-                $monthYear = $date->isoFormat('MMMM YYYY'); // Menggunakan isoFormat sebagai pengganti formatLocalized
+                $monthYear = $date->isoFormat('MMMM YYYY');
                 $labels[] = $monthYear;
                 
                 $sales = $salesData->firstWhere(function ($item) use ($date) {
@@ -95,7 +101,7 @@ class ReportController extends Controller
                 $data[] = $sales ? $sales->total_sales : 0;
                 $currentDate->addMonth();
             }
-            \Carbon\Carbon::setLocale('en'); // Reset locale ke default setelah selesai
+            \Carbon\Carbon::setLocale('en');
         }
 
         return view('admin.reports.index', compact(
@@ -105,15 +111,43 @@ class ReportController extends Controller
             'activeCustomers',
             'labels',
             'data',
-            'period'
+            'period',
+            'startMonth',
+            'startYear',
+            'endMonth',
+            'endYear'
         ));
     }
 
-    public function pdf()
+    public function pdf(Request $request)
     {
-        $orders = \App\Models\Order::with('user')->latest()->take(50)->get();
-        $pdf = \PDF::loadView('admin.reports.pdf', compact('orders'));
-        return $pdf->download('laporan-pesanan.pdf');
+        $startMonth = $request->input('start_month', now()->month);
+        $startYear = $request->input('start_year', now()->year);
+        $endMonth = $request->input('end_month', now()->month);
+        $endYear = $request->input('end_year', now()->year);
+
+        $startDate = Carbon::create($startYear, $startMonth, 1)->startOfMonth();
+        $endDate = Carbon::create($endYear, $endMonth, 1)->endOfMonth();
+
+        // Ambil pesanan yang SUDAH DIBAYAR saja agar totalnya sinkron dengan dashboard
+        $orders = Order::with('user')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->where('payment_status', 'paid')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $totalRevenue = $orders->sum('grand_total');
+        $totalOrders = $orders->count();
+
+        // Penamaan bulan untuk judul laporan
+        \Carbon\Carbon::setLocale('id');
+        $periodeStr = $startDate->isoFormat('MMMM YYYY');
+        if ($startDate->format('Y-m') != $endDate->format('Y-m')) {
+            $periodeStr .= ' - ' . $endDate->isoFormat('MMMM YYYY');
+        }
+
+        $pdf = \PDF::loadView('admin.reports.pdf', compact('orders', 'totalRevenue', 'totalOrders', 'periodeStr'));
+        return $pdf->download('laporan-penjualan-' . strtolower(str_replace(' ', '-', $periodeStr)) . '.pdf');
     }
 
     public function stockReport(Request $request)
