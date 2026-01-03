@@ -74,13 +74,21 @@
                             <tr>
                                 <td><strong>Metode Pembayaran:</strong></td>
                                 <td>
-                                    @if($order->payment_method == 'cash')
+                                    @if($order->payment_method == 'cod')
                                         <span class="badge bg-success">
-                                            <i class="fas fa-money-bill-wave me-1"></i>Cash on Delivery
+                                            <i class="fas fa-motorcycle me-1"></i>COD (Cash on Delivery)
                                         </span>
-                                    @else
+                                    @elseif($order->payment_method == 'transfer')
                                         <span class="badge bg-primary">
                                             <i class="fas fa-university me-1"></i>Transfer Bank
+                                        </span>
+                                    @elseif($order->payment_method == 'cash')
+                                        <span class="badge bg-info">
+                                            <i class="fas fa-money-bill-wave me-1"></i>Cash (Ambil di Toko)
+                                        </span>
+                                    @else
+                                        <span class="badge bg-warning">
+                                            <i class="fas fa-credit-card me-1"></i>{{ ucfirst($order->payment_method) }}
                                         </span>
                                     @endif
                                 </td>
