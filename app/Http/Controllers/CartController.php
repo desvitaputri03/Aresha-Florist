@@ -32,7 +32,7 @@ class CartController extends Controller
     {
         $cartItems = $this->getCartItems();
         $total = $this->calculateTotal($cartItems);
-        
+
         return view('cart.index', compact('cartItems', 'total'));
     }
 
@@ -74,21 +74,21 @@ class CartController extends Controller
         // Cek apakah item sudah ada di keranjang dengan opsi gabungan yang sama
         $existingCart = Cart::where('product_id', $product->id)
             ->where('is_combined_order', $isCombinedOrder)
-            ->where(function($query) use ($combinedQuantity) {
+            ->where(function ($query) use ($combinedQuantity) {
                 if ($combinedQuantity !== null && $combinedQuantity !== '') {
                     $query->where('combined_quantity', $combinedQuantity);
                 } else {
                     $query->whereNull('combined_quantity');
                 }
             })
-            ->where(function($query) use ($combinedCustomRequest) {
+            ->where(function ($query) use ($combinedCustomRequest) {
                 if ($combinedCustomRequest !== null && $combinedCustomRequest !== '') {
                     $query->where('combined_custom_request', $combinedCustomRequest);
                 } else {
                     $query->whereNull('combined_custom_request');
                 }
             })
-            ->where(function($query) use ($userId, $sessionId) {
+            ->where(function ($query) use ($userId, $sessionId) {
                 if ($userId) {
                     $query->where('user_id', $userId);
                 } else {
@@ -166,7 +166,7 @@ class CartController extends Controller
     public function checkout()
     {
         $cartItems = $this->getCartItems();
-        
+
         if ($cartItems->isEmpty()) {
             return redirect()->route('cart.index')->with('error', 'Keranjang kosong!');
         }
@@ -180,7 +180,7 @@ class CartController extends Controller
         // Get ID for 'Sumatera Barat' province and 'Kota Padang' regency
         $sumateraBarat = Province::where('name', 'Sumatera Barat')->first();
         $kotaPadang = Regency::where('name', 'Kota Padang')->first();
-        
+
         $provinces = Province::all(['id', 'name']);
         $regencies = $sumateraBarat ? $sumateraBarat->regencies()->get(['id', 'name']) : collect();
         $districts = $kotaPadang ? $kotaPadang->districts()->get(['id', 'name', 'postal_code']) : collect();
@@ -196,6 +196,7 @@ class CartController extends Controller
         try {
             $request->validate([
                 'nama' => 'required|string|max:255',
+                'email' => 'required|email|max:255',
                 'telepon' => 'required|string|max:20',
                 'alamat' => 'required|string',
                 'catatan' => 'nullable|string',
@@ -210,7 +211,7 @@ class CartController extends Controller
         }
 
         $cartItems = $this->getCartItems();
-        
+
         if ($cartItems->isEmpty()) {
             return redirect()->route('cart.index')->with('error', 'Keranjang kosong!');
         }
@@ -224,7 +225,7 @@ class CartController extends Controller
         DB::beginTransaction();
         try {
             $totalAmount = $this->calculateTotal($cartItems);
-            
+
             // Karena hanya pengiriman di Padang, ongkir selalu 0
             $shippingCost = 0;
             $grandTotal = $totalAmount + $shippingCost;
@@ -236,7 +237,7 @@ class CartController extends Controller
                 'user_id' => Auth::id(),
                 'admin_id' => $admin->id,
                 'customer_name' => $request->nama,
-                'customer_email' => $request->email ?? 'noreply@areshaflorist.com',
+                'customer_email' => $request->email,
                 'customer_phone' => $request->telepon,
                 'customer_address' => $customerFullAddress, // Gunakan alamat lengkap yang dibangun
                 'notes' => $request->catatan,
@@ -244,14 +245,14 @@ class CartController extends Controller
                 'event_type' => $request->event_type,
                 'custom_message' => $request->custom_message,
                 'payment_method' => $request->payment_method,
-                'payment_status' => $request->payment_method === 'transfer' ? 'pending_transfer' : 
-                                    ($request->payment_method === 'cod' ? 'pending_cod' : 
-                                    ($request->payment_method === 'cash' ? 'pending' : 
-                                    ($request->payment_method === 'payment_gateway' ? 'pending_payment_gateway' : 'pending'))),
-                'order_status' => $request->payment_method === 'transfer' ? 'pending_payment' : 
-                                  ($request->payment_method === 'cod' ? 'pending_cod_verification' : 
-                                  ($request->payment_method === 'cash' ? 'pending' : 
-                                  ($request->payment_method === 'payment_gateway' ? 'pending_payment_gateway' : 'pending'))),
+                'payment_status' => $request->payment_method === 'transfer' ? 'pending_transfer' :
+                    ($request->payment_method === 'cod' ? 'pending_cod' :
+                        ($request->payment_method === 'cash' ? 'pending' :
+                            ($request->payment_method === 'payment_gateway' ? 'pending_payment_gateway' : 'pending'))),
+                'order_status' => $request->payment_method === 'transfer' ? 'pending_payment' :
+                    ($request->payment_method === 'cod' ? 'pending_cod_verification' :
+                        ($request->payment_method === 'cash' ? 'pending' :
+                            ($request->payment_method === 'payment_gateway' ? 'pending_payment_gateway' : 'pending'))),
                 'total_amount' => $totalAmount,
                 'shipping_cost' => $shippingCost,
                 'grand_total' => $grandTotal,
@@ -277,23 +278,23 @@ class CartController extends Controller
             $this->getCartItems()->each->delete();
 
             DB::commit();
-            
+
             // Simpan order ID untuk digunakan di background job
             $orderId = $order->id;
             $adminId = $admin->id;
             $customerPhone = $request->telepon;
-            
+
             // Kirim notifikasi email dan WhatsApp di background (tidak blocking)
             // Menggunakan dispatchAfterResponse agar tidak memperlambat response ke user
             dispatch(function () use ($orderId, $adminId, $customerPhone) {
                 // Reload order dan admin untuk memastikan data terbaru
                 $order = \App\Models\Order::find($orderId);
                 $admin = \App\Models\User::find($adminId);
-                
+
                 if (!$order) {
                     return;
                 }
-                
+
                 // Kirim notifikasi email ke admin untuk pesanan baru
                 try {
                     if ($admin && $admin->email) {
@@ -340,10 +341,10 @@ class CartController extends Controller
                 // --- Placeholder untuk Inisialisasi Payment Gateway --- //
                 // Di sini Anda akan mengintegrasikan dengan SDK payment gateway yang sebenarnya.
                 // Contoh: Inisialisasi transaksi, dapatkan URL redirect.
-                
+
                 // Untuk tujuan demo, kita akan mensimulasikan URL redirect.
                 $paymentGatewayRedirectUrl = route('cart.success', $order->id) . '?status=pending_payment_gateway';
-                
+
                 // Anda mungkin juga perlu menyimpan payment_gateway_order_id yang sebenarnya dari respons payment gateway
                 $order->update([
                     'payment_gateway_order_id' => 'PG-' . $order->order_number, // ID dari payment gateway
@@ -378,7 +379,7 @@ class CartController extends Controller
         $sessionId = session()->getId();
 
         return Cart::with('product')
-            ->where(function($query) use ($userId, $sessionId) {
+            ->where(function ($query) use ($userId, $sessionId) {
                 if ($userId) {
                     $query->where('user_id', $userId);
                 } else {
@@ -393,7 +394,7 @@ class CartController extends Controller
      */
     private function calculateTotal($cartItems)
     {
-        return $cartItems->sum(function($item) {
+        return $cartItems->sum(function ($item) {
             $price = $item->product->harga_diskon ?? $item->product->harga;
 
             // Apply combined board pricing logic
@@ -409,7 +410,7 @@ class CartController extends Controller
                     return ($price * ($item->product->combinable_multiplier ?? 3)) * $item->quantity;
                 }
             }
-            
+
             return $price * $item->quantity;
         });
     }
