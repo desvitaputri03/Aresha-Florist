@@ -178,6 +178,29 @@
     @method('DELETE')
 </form>
 
+<style>
+    /* Pagination styling untuk admin */
+    .pagination {
+        gap: 4px;
+    }
+    
+    .pagination .page-link {
+        padding: 4px 8px;
+        font-size: 13px;
+        min-width: auto;
+        border-radius: 4px;
+    }
+    
+    .pagination .page-item.active .page-link {
+        background-color: var(--primary-color, #007bff);
+        border-color: var(--primary-color, #007bff);
+    }
+    
+    .pagination .page-link:hover {
+        background-color: #f0f0f0;
+    }
+</style>
+
 <script>
 function deleteProduct(productId) {
     if (confirm('Apakah Anda yakin ingin menghapus produk ini?')) {
