@@ -1,4 +1,4 @@
 # Aresha Florist
 
 Proyek Kelompok 5  
-Aplikasi Web Pemesanan Karangan Bunga berbasis Laravel
+Aplikasi Web Pemesanan Karangan Bunga Berbasis Laravel
