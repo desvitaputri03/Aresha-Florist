@@ -4,12 +4,13 @@
 .env
 .env.*
 
-/storage
 /storage/framework
 /storage/framework/cache
 /storage/framework/views
 /storage/framework/sessions
 /storage/logs
+/storage/app/private
+/storage/app/public/.gitignore
 
 /public/storage
 /public/hot
