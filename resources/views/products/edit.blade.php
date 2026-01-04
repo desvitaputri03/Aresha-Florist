@@ -38,8 +38,8 @@
     </div>
     <div class="mb-3">
         <label>Gambar</label><br>
-        @if($product->gambar)
-            <img src="{{ asset('storage/'.$product->gambar) }}" width="120" class="mb-2"><br>
+        @if($product->images->count() > 0)
+            <img src="{{ asset('storage/'.$product->images->first()->image_path) }}" width="120" class="mb-2"><br>
         @endif
         <input type="file" name="gambar" class="form-control">
     </div>

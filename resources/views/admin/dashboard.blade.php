@@ -190,8 +190,8 @@
             <div class="col-lg-4 col-md-6">
                 <div class="product-card fade-in-up">
                     <div class="position-relative">
-                        @if($product->gambar)
-                            <img src="{{ asset('storage/'.$product->gambar) }}"
+                        @if($product->images->count() > 0)
+                            <img src="{{ asset('storage/'.$product->images->first()->image_path) }}"
                                  alt="{{ $product->name }}"
                                  class="img-fluid">
                         @else
