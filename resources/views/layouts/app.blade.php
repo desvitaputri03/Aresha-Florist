@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Aresha Florist')</title>
-    <meta name="description" content="Aresha Florist - Toko bunga online terpercaya dengan rangkaian bunga terindah untuk setiap momen spesial. Free ongkir Jakarta, tanpa minimum pembelian.">
+    <meta name="description" content="Aresha Florist - Toko karangan bunga online terpercaya dengan rangkaian bunga terindah untuk setiap momen spesial. Free ongkir Padang, tanpa minimum pembelian.">
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -443,7 +443,7 @@
                     <h5 class="mb-3" style="color: var(--accent-color);">
                         <i class="fas fa-seedling me-2"></i>Aresha Florist
                     </h5>
-                    <p class="text-muted">Toko bunga online terpercaya dengan rangkaian bunga terindah untuk setiap momen spesial. Kami berkomitmen memberikan kualitas terbaik dengan pelayanan yang memuaskan.</p>
+                    <p class="text-muted">Toko karangan bunga online terpercaya dengan rangkaian bunga terindah untuk setiap momen spesial. Kami berkomitmen memberikan kualitas terbaik dengan pelayanan yang memuaskan.</p>
                     <div class="d-flex gap-3">
                         <a href="#" class="text-light"><i class="fab fa-facebook-f"></i></a>
                         <a href="#" class="text-light"><i class="fab fa-instagram"></i></a>

@@ -3,184 +3,119 @@
 @section('title', 'Tambah Produk Baru - Admin Panel')
 
 @section('content')
+<!-- Judul Halaman -->
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="fas fa-plus me-2"></i>Tambah Produk Baru</h2>
-    <a href="{{ route('admin.products.index') }}" class="btn btn-secondary">
+    <h2 style="color: #C2185B; font-weight: 800;"><i class="fas fa-plus me-3"></i>Tambah Produk Baru</h2>
+    <a href="{{ route('admin.products.index') }}" class="btn btn-secondary shadow-sm" style="border-radius: 8px; background-color: #6C757D !important; border: none;">
         <i class="fas fa-arrow-left me-2"></i>Kembali
     </a>
 </div>
 
-<div class="card">
-    <div class="card-header">
-        <h5 class="mb-0">Form Tambah Produk</h5>
+<!-- Card Utama Warna Pink Lembut -->
+<div class="card border-0 shadow-sm" style="background-color: #FCE4EC !important; border-radius: 15px; overflow: hidden; border: 1px solid #F8BBD9 !important;">
+    <!-- Header Magenta Full Mewah -->
+    <div class="card-header py-3" style="background-color: #C2185B !important; border: none;">
+        <h5 class="mb-0 text-white fw-bold">
+            <i class="fas fa-edit me-2"></i>Form Tambah Produk
+        </h5>
     </div>
-    <div class="card-body">
+    
+    <div class="card-body p-4" style="background-color: #FCE4EC !important;">
         <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             
             <div class="row">
+                <!-- Kolom Kiri: Detail Produk -->
                 <div class="col-md-8">
-                    <div class="mb-3">
-                        <label for="name" class="form-label">Nama Produk <span class="text-danger">*</span></label>
-                        <input type="text" 
-                               class="form-control @error('name') is-invalid @enderror" 
-                               id="name" 
-                               name="name" 
-                               value="{{ old('name') }}" 
-                               required>
-                        @error('name')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                    <div class="mb-4">
+                        <label for="name" class="form-label fw-bold" style="color: #C2185B;">Nama Produk <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ old('name') }}" 
+                               style="background-color: #FFF0F5 !important; border: 1px solid #F8BBD9 !important; color: #C2185B; font-weight: 500;" placeholder="Contoh: Karangan Bunga Papan Wisuda" required>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="deskripsi" class="form-label">Deskripsi</label>
-                        <textarea class="form-control @error('deskripsi') is-invalid @enderror" 
-                                  id="deskripsi" 
-                                  name="deskripsi" 
-                                  rows="4">{{ old('deskripsi') }}</textarea>
-                        @error('deskripsi')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                    <div class="mb-4">
+                        <label for="deskripsi" class="form-label fw-bold" style="color: #C2185B;">Deskripsi</label>
+                        <textarea class="form-control" id="deskripsi" name="deskripsi" rows="5" 
+                                  style="background-color: #FFF0F5 !important; border: 1px solid #F8BBD9 !important; color: #C2185B;" placeholder="Detail produk...">{{ old('deskripsi') }}</textarea>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="harga" class="form-label">Harga Normal <span class="text-danger">*</span></label>
+                            <div class="mb-4">
+                                <label for="harga" class="form-label fw-bold" style="color: #C2185B;">Harga Normal <span class="text-danger">*</span></label>
                                 <div class="input-group">
-                                    <span class="input-group-text">Rp</span>
-                                    <input type="number" 
-                                           class="form-control @error('harga') is-invalid @enderror" 
-                                           id="harga" 
-                                           name="harga" 
-                                           value="{{ (int) old('harga') }}" 
-                                           min="0" 
-                                           required>
+                                    <span class="input-group-text" style="background: #FFF0F5; border: 1px solid #F8BBD9; border-right: none;">Rp</span>
+                                    <input type="number" class="form-control" id="harga" name="harga" value="{{ old('harga', 0) }}" 
+                                           style="background-color: #FFF0F5 !important; border: 1px solid #F8BBD9 !important; border-left: none;" required>
                                 </div>
-                                @error('harga')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="harga_diskon" class="form-label">Harga Diskon</label>
+                            <div class="mb-4">
+                                <label for="harga_diskon" class="form-label fw-bold" style="color: #C2185B;">Harga Diskon</label>
                                 <div class="input-group">
-                                    <span class="input-group-text">Rp</span>
-                                    <input type="number" 
-                                           class="form-control @error('harga_diskon') is-invalid @enderror" 
-                                           id="harga_diskon" 
-                                           name="harga_diskon" 
-                                           value="{{ (int) old('harga_diskon') }}" 
-                                           min="0">
+                                    <span class="input-group-text" style="background: #FFF0F5; border: 1px solid #F8BBD9; border-right: none;">Rp</span>
+                                    <input type="number" class="form-control" id="harga_diskon" name="harga_diskon" value="{{ old('harga_diskon', 0) }}" 
+                                           style="background-color: #FFF0F5 !important; border: 1px solid #F8BBD9 !important; border-left: none;">
                                 </div>
-                                @error('harga_diskon')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                                <small class="form-text text-muted">Kosongkan jika tidak ada diskon</small>
                             </div>
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="id_kategori" class="form-label">Kategori <span class="text-danger">*</span></label>
-                                <select class="form-select @error('id_kategori') is-invalid @enderror" 
-                                        id="id_kategori" 
-                                        name="id_kategori" 
-                                        required>
+                            <div class="mb-4">
+                                <label for="id_kategori" class="form-label fw-bold" style="color: #C2185B;">Kategori <span class="text-danger">*</span></label>
+                                <select class="form-select" id="id_kategori" name="id_kategori" style="background-color: #FFF0F5 !important; border: 1px solid #F8BBD9 !important;" required>
                                     <option value="">Pilih Kategori</option>
                                     @foreach($categories as $category)
-                                        <option value="{{ $category->id }}" 
-                                                {{ old('id_kategori') == $category->id ? 'selected' : '' }}>
-                                            {{ $category->name }}
-                                        </option>
+                                        <option value="{{ $category->id }}" {{ old('id_kategori') == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
                                     @endforeach
                                 </select>
-                                @error('id_kategori')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="stok" class="form-label">Stok <span class="text-danger">*</span></label>
-                                <input type="number" 
-                                       class="form-control @error('stok') is-invalid @enderror" 
-                                       id="stok" 
-                                       name="stok" 
-                                       value="{{ old('stok') }}" 
-                                       min="0" 
-                                       required>
-                                @error('stok')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                            <div class="mb-4">
+                                <label for="stok" class="form-label fw-bold" style="color: #C2185B;">Stok <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="stok" name="stok" value="{{ old('stok', 0) }}" 
+                                       style="background-color: #FFF0F5 !important; border: 1px solid #F8BBD9 !important;" required>
                             </div>
                         </div>
                     </div>
                 </div>
 
+                <!-- Kolom Kanan: Gambar -->
                 <div class="col-md-4">
-                    <div class="mb-3">
-                        <label for="images" class="form-label">Gambar Produk (Bisa lebih dari satu)</label>
-                        <input type="file" 
-                               class="form-control @error('images.*') is-invalid @enderror" 
-                               id="images" 
-                               name="images[]" 
-                               accept="image/*" 
-                               multiple>
-                        @error('images.*')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                        <small class="form-text text-muted">Format: JPG, PNG. Maksimal 2MB per gambar</small>
-                        
-                        <div id="imagePreview" class="mt-3 row g-2">
-                            <!-- Image previews will be dynamically added here -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold" style="color: #C2185B;">Gambar Produk</label>
+                        <div class="p-3 rounded border" style="background-color: #FFF0F5; border: 1px dashed #C2185B !important;">
+                            <input type="file" class="form-control" id="images" name="images[]" multiple style="background: transparent; border: none;">
+                            <small class="text-muted d-block mt-2">Pilih beberapa foto karangan bunga.</small>
                         </div>
+                        <div id="imagePreview" class="mt-3 row g-2"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Combinable Options -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">Opsi Papan Gabungan</h5>
+            <!-- Opsi Papan Gabungan -->
+            <div class="card mb-4 border-0 shadow-sm" style="border-radius: 12px; overflow: hidden; border: 1px solid #F8BBD9 !important;">
+                <div class="card-header py-2" style="background-color: #F8BBD9 !important; border: none;">
+                    <h6 class="mb-0 fw-bold" style="color: #C2185B;">Opsi Papan Gabungan</h6>
                 </div>
-                <div class="card-body">
-                    <div class="form-check mb-3">
+                <div class="card-body" style="background-color: #FFF0F5 !important;">
+                    <div class="form-check mb-2">
                         <input class="form-check-input" type="checkbox" id="is_combinable" name="is_combinable" value="1" {{ old('is_combinable') ? 'checked' : '' }}>
-                        <label class="form-check-label" for="is_combinable">
-                            Produk ini dapat digabungkan
+                        <label class="form-check-label fw-bold" for="is_combinable" style="color: #C2185B;">
+                            Produk ini dapat digabungkan (Misal: Order 2-4 papan)
                         </label>
-                        <small class="form-text text-muted d-block">Centang jika produk ini dapat digabungkan dengan produk lain.</small>
-                    </div>
-
-                    <div class="mb-3" id="combinableMultiplierField" style="display: none;">
-                        <label for="combinable_multiplier" class="form-label">Pengali Papan Gabungan</label>
-                        <div class="input-group">
-                            <input type="number" 
-                                   class="form-control @error('combinable_multiplier') is-invalid @enderror" 
-                                   id="combinable_multiplier" 
-                                   name="combinable_multiplier" 
-                                   value="{{ (int) old('combinable_multiplier', 1) }}" 
-                                   min="1">
-                        </div>
-                        @error('combinable_multiplier')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                        <small class="form-text text-muted">Masukkan jumlah pengali harga jika 2 papan digabungkan (misal: 2 untuk 2x harga). Untuk 4 papan, negosiasi manual.</small>
                     </div>
                 </div>
             </div>
 
-            <div class="d-flex justify-content-end gap-2">
-                <a href="{{ route('admin.products.index') }}" class="btn btn-secondary">
-                    <i class="fas fa-times me-2"></i>Batal
-                </a>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save me-2"></i>Simpan Produk
+            <!-- Tombol Simpan -->
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                <button type="submit" class="btn btn-primary px-5 py-2 fw-bold" style="background-color: #C2185B !important; border: none !important; border-radius: 8px;">
+                    <i class="fas fa-save me-2"></i>Simpan Produk ke Katalog
                 </button>
             </div>
         </form>
@@ -188,61 +123,20 @@
 </div>
 
 <script>
-// Image preview functionality for multiple images
+// Preview Gambar
 document.getElementById('images').addEventListener('change', function(e) {
-    const previewContainer = document.getElementById('imagePreview');
-    previewContainer.innerHTML = ''; // Clear existing previews
-    previewContainer.style.display = 'flex'; // Show container
-
-    if (e.target.files.length > 0) {
-        Array.from(e.target.files).forEach(file => {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const colDiv = document.createElement('div');
-                colDiv.className = 'col-4'; // Adjust column size as needed
-                colDiv.innerHTML = `
-                    <img src="${e.target.result}" alt="Preview" class="img-fluid rounded shadow-sm" style="max-height: 120px; object-fit: cover;">
-                `;
-                previewContainer.appendChild(colDiv);
-            };
-            reader.readAsDataURL(file);
-        });
-    } else {
-        previewContainer.style.display = 'none';
-    }
-});
-
-// Toggle combinable fields
-document.addEventListener('DOMContentLoaded', function() {
-    const isCombinableCheckbox = document.getElementById('is_combinable');
-    const combinableMultiplierField = document.getElementById('combinableMultiplierField');
-    const combinableMultiplierInput = document.getElementById('combinable_multiplier');
-    const form = document.querySelector('form');
-
-    function toggleCombinableFields() {
-        if (isCombinableCheckbox.checked) {
-            combinableMultiplierField.style.display = 'block';
-        } else {
-            combinableMultiplierField.style.display = 'none';
-            // Clear the value when checkbox is unchecked
-            if (combinableMultiplierInput) {
-                combinableMultiplierInput.value = '';
-            }
-        }
-    }
-
-    // Ensure field is cleared before form submission if checkbox is not checked
-    if (form) {
-        form.addEventListener('submit', function(e) {
-            if (!isCombinableCheckbox.checked && combinableMultiplierInput) {
-                combinableMultiplierInput.value = '';
-            }
-        });
-    }
-
-    isCombinableCheckbox.addEventListener('change', toggleCombinableFields);
-    toggleCombinableFields(); // Set initial state
+    const preview = document.getElementById('imagePreview');
+    preview.innerHTML = '';
+    Array.from(e.target.files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = f => {
+            const div = document.createElement('div');
+            div.className = 'col-4';
+            div.innerHTML = `<img src="${f.target.result}" class="img-fluid rounded shadow-sm border">`;
+            preview.appendChild(div);
+        };
+        reader.readAsDataURL(file);
+    });
 });
 </script>
 @endsection
-

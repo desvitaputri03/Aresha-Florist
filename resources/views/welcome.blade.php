@@ -166,7 +166,7 @@
         <div class="row align-items-center">
             <div class="col-lg-6 hero-content">
                 <h1 class="hero-title fade-in-up" style="animation-delay: 0.1s;">
-                    Penjualan <span class="highlight">Karangan Bunga</span> Terbaik
+                    Sewa <span class="highlight">Karangan Bunga</span> Terbaik
                 </h1>
                 <p class="hero-subtitle fade-in-up" style="animation-delay: 0.2s;">Untuk Setiap Momen</p>
                 <p class="hero-description fade-in-up" style="animation-delay: 0.3s;">

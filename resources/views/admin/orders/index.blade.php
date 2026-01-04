@@ -3,76 +3,73 @@
 @section('title', 'Kelola Pesanan - Admin Panel')
 
 @section('content')
+<!-- Header Halaman -->
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="fas fa-shopping-cart me-2"></i>Kelola Pesanan</h2>
+    <h2 style="color: #C2185B; font-weight: 800;"><i class="fas fa-shopping-cart me-2"></i>Kelola Pesanan</h2>
     <div class="d-flex gap-2">
-        <button class="btn btn-outline-primary" onclick="loadStatistics()">
+        <button class="btn btn-outline-primary" style="border-color: #C2185B; color: #C2185B; font-weight: 600;" onclick="loadStatistics()">
             <i class="fas fa-chart-bar me-2"></i>Statistik
         </button>
     </div>
 </div>
 
-<!-- Statistics Card -->
-<div id="statistics-card" class="card mb-4" style="display: none;">
-    <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Statistik Pesanan</h5>
+<!-- Statistics Card (Awalnya Sembunyi) -->
+<div id="statistics-card" class="card mb-4 border-0 shadow-sm" style="display: none; background-color: #FCE4EC !important; border-radius: 15px;">
+    <div class="card-header border-0 py-3" style="background-color: #C2185B !important;">
+        <h5 class="mb-0 text-white fw-bold"><i class="fas fa-chart-pie me-2"></i>Statistik Pesanan</h5>
     </div>
     <div class="card-body">
-        <div class="row" id="statistics-content">
-            <!-- Statistics will be loaded here -->
+        <div class="row text-center" id="statistics-content">
+            <!-- Isi statistik diisi lewat JS -->
         </div>
     </div>
 </div>
 
-<!-- Filters -->
-<div class="card mb-4">
-    <div class="card-body">
+<!-- KOTAK FILTER - SEKARANG JADI PINK MEWAH (BUKAN PUTIH) -->
+<div class="card mb-4 border-0 shadow-sm" style="background-color: #FCE4EC !important; border-radius: 15px; border: 1px solid #F8BBD9 !important;">
+    <div class="card-body p-4">
         <form method="GET" class="row g-3">
             <div class="col-md-3">
-                <label for="search" class="form-label">Cari</label>
+                <label for="search" class="form-label fw-bold" style="color: #C2185B;">Cari</label>
                 <input type="text" class="form-control" id="search" name="search" 
-                       value="{{ $filters['search'] }}" placeholder="No. pesanan, nama, email...">
+                       value="{{ $filters['search'] ?? '' }}" placeholder="No. pesanan, nama, email..."
+                       style="background-color: #FFF0F5 !important; border: 1px solid #F8BBD9 !important; color: #C2185B; font-weight: 500;">
             </div>
             <div class="col-md-2">
-                <label for="status" class="form-label">Status Pesanan</label>
-                <select class="form-select" id="status" name="status">
+                <label for="status" class="form-label fw-bold" style="color: #C2185B;">Status Pesanan</label>
+                <select class="form-select" id="status" name="status" style="background-color: #FFF0F5 !important; border: 1px solid #F8BBD9 !important;">
                     <option value="">Semua Status</option>
-                    <option value="pending" {{ $filters['status'] == 'pending' ? 'selected' : '' }}>Pending</option>
-                    <option value="processing" {{ $filters['status'] == 'processing' ? 'selected' : '' }}>Processing</option>
-                    <option value="shipped" {{ $filters['status'] == 'shipped' ? 'selected' : '' }}>Shipped</option>
-                    <option value="delivered" {{ $filters['status'] == 'delivered' ? 'selected' : '' }}>Delivered</option>
-                    <option value="cancelled" {{ $filters['status'] == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                    @foreach(['pending', 'processing', 'shipped', 'delivered', 'cancelled'] as $st)
+                        <option value="{{ $st }}" {{ ($filters['status'] ?? '') == $st ? 'selected' : '' }}>{{ ucfirst($st) }}</option>
+                    @endforeach
                 </select>
             </div>
             <div class="col-md-2">
-                <label for="payment_method" class="form-label">Metode Pembayaran</label>
-                <select class="form-select" id="payment_method" name="payment_method">
+                <label for="payment_method" class="form-label fw-bold" style="color: #C2185B;">Metode</label>
+                <select class="form-select" id="payment_method" name="payment_method" style="background-color: #FFF0F5 !important; border: 1px solid #F8BBD9 !important;">
                     <option value="">Semua Metode</option>
-                    <option value="cash" {{ $filters['payment_method'] == 'cash' ? 'selected' : '' }}>Cash</option>
-                    <option value="transfer" {{ $filters['payment_method'] == 'transfer' ? 'selected' : '' }}>Transfer</option>
+                    <option value="cash" {{ ($filters['payment_method'] ?? '') == 'cash' ? 'selected' : '' }}>Cash</option>
+                    <option value="transfer" {{ ($filters['payment_method'] ?? '') == 'transfer' ? 'selected' : '' }}>Transfer</option>
                 </select>
             </div>
             <div class="col-md-2">
-                <label for="payment_status" class="form-label">Status Pembayaran</label>
-                <select class="form-select" id="payment_status" name="payment_status">
+                <label for="payment_status" class="form-label fw-bold" style="color: #C2185B;">Pembayaran</label>
+                <select class="form-select" id="payment_status" name="payment_status" style="background-color: #FFF0F5 !important; border: 1px solid #F8BBD9 !important;">
                     <option value="">Semua Status</option>
-                    <option value="pending" {{ $filters['payment_status'] == 'pending' ? 'selected' : '' }}>Pending</option>
-                    <option value="paid" {{ $filters['payment_status'] == 'paid' ? 'selected' : '' }}>Paid</option>
-                    <option value="failed" {{ $filters['payment_status'] == 'failed' ? 'selected' : '' }}>Failed</option>
+                    <option value="pending" {{ ($filters['payment_status'] ?? '') == 'pending' ? 'selected' : '' }}>Pending</option>
+                    <option value="paid" {{ ($filters['payment_status'] ?? '') == 'paid' ? 'selected' : '' }}>Paid</option>
                 </select>
             </div>
             <div class="col-md-2">
-                <label for="sort" class="form-label">Urutkan</label>
-                <select class="form-select" id="sort" name="sort">
-                    <option value="latest" {{ $filters['sort'] == 'latest' ? 'selected' : '' }}>Terbaru</option>
-                    <option value="oldest" {{ $filters['sort'] == 'oldest' ? 'selected' : '' }}>Terlama</option>
-                    <option value="total_asc" {{ $filters['sort'] == 'total_asc' ? 'selected' : '' }}>Total ↑</option>
-                    <option value="total_desc" {{ $filters['sort'] == 'total_desc' ? 'selected' : '' }}>Total ↓</option>
+                <label for="sort" class="form-label fw-bold" style="color: #C2185B;">Urutkan</label>
+                <select class="form-select" id="sort" name="sort" style="background-color: #FFF0F5 !important; border: 1px solid #F8BBD9 !important;">
+                    <option value="latest" {{ ($filters['sort'] ?? '') == 'latest' ? 'selected' : '' }}>Terbaru</option>
+                    <option value="oldest" {{ ($filters['sort'] ?? '') == 'oldest' ? 'selected' : '' }}>Terlama</option>
                 </select>
             </div>
             <div class="col-md-1">
                 <label class="form-label">&nbsp;</label>
-                <button type="submit" class="btn btn-primary w-100">
+                <button type="submit" class="btn btn-primary w-100" style="background-color: #C2185B !important; border: none;">
                     <i class="fas fa-search"></i>
                 </button>
             </div>
@@ -80,116 +77,59 @@
     </div>
 </div>
 
-<!-- Orders Table -->
-<div class="card">
-    <div class="card-header">
-        <h5 class="mb-0">Daftar Pesanan ({{ $orders->total() }} pesanan)</h5>
+<!-- DAFTAR PESANAN - HEADER MAGENTA MEWAH -->
+<div class="card border-0 shadow-sm" style="border-radius: 15px; overflow: hidden; border: 1px solid #F8BBD9 !important;">
+    <div class="card-header py-3" style="background-color: #C2185B !important; border: none;">
+        <h5 class="mb-0 text-white fw-bold">
+            <i class="fas fa-list me-2"></i>Daftar Pesanan ({{ $orders->total() }} pesanan)
+        </h5>
     </div>
-    <div class="card-body">
-        @if($orders->count() > 0)
+    <div class="card-body p-0" style="background-color: #ffffff;">
         <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
+            <table class="table table-hover mb-0">
+                <thead style="background-color: #FCE4EC;">
                     <tr>
-                        <th>No. Pesanan</th>
+                        <th class="ps-4">No. Pesanan</th>
                         <th>Customer</th>
                         <th class="text-end">Total</th>
-                        <th>Metode Pembayaran</th>
-                        <th>Status Pembayaran</th>
-                        <th>Status Pesanan</th>
+                        <th>Metode</th>
+                        <th>Bayar</th>
+                        <th>Status</th>
                         <th>Tanggal</th>
-                        <th>Aksi</th>
+                        <th class="pe-4 text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($orders as $order)
                     <tr>
-                        <td>
-                            <a href="{{ route('admin.orders.show', $order->id) }}" class="text-decoration-none text-dark"><strong>{{ $order->order_number }}</strong></a>
+                        <td class="ps-4">
+                            <a href="{{ route('admin.orders.show', $order->id) }}" style="color: #C2185B; font-weight: 800; text-decoration: none;">{{ $order->order_number }}</a>
                         </td>
                         <td>
-                            <div>
-                                @if($order->user)
-                                    <div class="fw-bold">
-                                        <a href="{{ route('admin.users.show', $order->user->id) }}" class="text-decoration-underline text-primary">
-                                            {{ $order->user->name }}
-                                        </a>
-                                    </div>
-                                    <small class="text-muted">{{ $order->user->email }}</small>
-                                @else
-                                    <div class="fw-bold">{{ $order->customer_name }}</div>
-                                    <small class="text-muted">{{ $order->customer_email }}</small>
-                                @endif
-                            </div>
+                            <div class="fw-bold">{{ $order->user->name ?? $order->customer_name }}</div>
+                            <small class="text-muted">{{ $order->user->email ?? $order->customer_email }}</small>
                         </td>
-                        <td class="text-end">
-                            <strong>Rp{{ number_format($order->grand_total, 0, ',', '.') }}</strong>
+                        <td class="text-end fw-bold">Rp{{ number_format($order->grand_total, 0, ',', '.') }}</td>
+                        <td>
+                            <span class="badge" style="background-color: {{ $order->payment_method == 'cash' ? '#0d6efd' : '#0dcaf0' }}; color: white;">
+                                {{ strtoupper($order->payment_method) }}
+                            </span>
                         </td>
                         <td>
-                            @if($order->payment_method == 'cash')
-                                <span class="badge bg-primary text-white">
-                                    <i class="fas fa-money-bill-wave me-1"></i>Cash
-                                </span>
-                            @else
-                                <span class="badge bg-info text-dark">
-                                    <i class="fas fa-university me-1"></i>Transfer
-                                </span>
-                            @endif
+                            <span class="badge bg-{{ $order->payment_status == 'paid' ? 'success' : 'warning' }}">
+                                {{ ucfirst($order->payment_status) }}
+                            </span>
                         </td>
                         <td>
-                            @switch($order->payment_status)
-                                @case('pending')
-                                    <span class="badge bg-warning text-dark">Pending</span>
-                                    @break
-                                @case('paid')
-                                    <span class="badge bg-success text-white">Paid</span>
-                                    @break
-                                @case('failed')
-                                    <span class="badge bg-danger text-white">Failed</span>
-                                    @break
-                            @endswitch
+                            <span class="badge bg-{{ $order->order_status == 'delivered' ? 'success' : ($order->order_status == 'pending' ? 'warning' : 'info') }}">
+                                {{ ucfirst($order->order_status) }}
+                            </span>
                         </td>
-                        <td>
-                            @switch($order->order_status)
-                                @case('pending')
-                                    <span class="badge bg-warning text-dark">Pending</span>
-                                    @break
-                                @case('processing')
-                                    <span class="badge bg-info text-white">Processing</span>
-                                    @break
-                                @case('shipped')
-                                    <span class="badge bg-warning text-dark">Shipped</span>
-                                    @break
-                                @case('delivered')
-                                    <span class="badge bg-success text-white">Delivered</span>
-                                    @break
-                                @case('cancelled')
-                                    <span class="badge bg-danger text-white">Cancelled</span>
-                                    @break
-                            @endswitch
-                        </td>
-                        <td>
-                            <small>{{ $order->created_at->isoFormat('DD MMMM YYYY HH:mm') }}</small>
-                        </td>
-                        <td>
-                            <div class="btn-group" role="group">
-                                <a href="{{ route('admin.orders.show', $order->id) }}" 
-                                   class="btn btn-sm btn-primary" title="Lihat Detail">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                <button type="button" class="btn btn-sm btn-info text-dark" 
-                                        onclick="updateStatus({{ $order->id }})" title="Update Status">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <form action="{{ route('admin.orders.destroy', $order->id) }}" 
-                                      method="POST" class="d-inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger text-white"
-                                            onclick="return confirm('Hapus pesanan ini?')" title="Hapus">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
+                        <td><small>{{ $order->created_at->format('d M Y') }}<br>{{ $order->created_at->format('H:i') }}</small></td>
+                        <td class="pe-4 text-center">
+                            <div class="btn-group shadow-sm">
+                                <a href="{{ route('admin.orders.show', $order->id) }}" class="btn btn-sm" style="background-color: #C2185B; color: white;"><i class="fas fa-eye"></i></a>
+                                <button type="button" class="btn btn-sm btn-info text-white" onclick="updateStatus({{ $order->id }})"><i class="fas fa-edit"></i></button>
                             </div>
                         </td>
                     </tr>
@@ -197,54 +137,36 @@
                 </tbody>
             </table>
         </div>
-
-        <div class="d-flex justify-content-center mt-4">
+        <div class="d-flex justify-content-center p-4">
             {{ $orders->links() }}
         </div>
-        @else
-        <div class="text-center py-5">
-            <i class="fas fa-shopping-cart text-muted" style="font-size: 4rem;"></i>
-            <h3 class="text-muted mt-3">Belum Ada Pesanan</h3>
-            <p class="text-muted">Belum ada pesanan yang masuk.</p>
-        </div>
-        @endif
     </div>
 </div>
 
-<!-- Update Status Modal -->
+<!-- Modal Update Status -->
 <div class="modal fade" id="updateStatusModal" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
+        <div class="modal-content" style="border-radius: 15px; overflow: hidden;">
+            <div class="modal-header text-white" style="background-color: #C2185B;">
                 <h5 class="modal-title">Update Status Pesanan</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form id="updateStatusForm" method="POST">
-                @csrf
-                @method('PATCH')
-                <div class="modal-body">
+                @csrf @method('PATCH')
+                <div class="modal-body" style="background-color: #FCE4EC;">
                     <div class="mb-3">
-                        <label for="order_status" class="form-label">Status Pesanan</label>
+                        <label class="form-label fw-bold">Status Pesanan</label>
                         <select class="form-select" id="order_status" name="order_status" required>
                             <option value="pending">Pending</option>
                             <option value="processing">Processing</option>
-                            <option value="shipped">Shipped</option>
                             <option value="delivered">Delivered</option>
                             <option value="cancelled">Cancelled</option>
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <label for="payment_status" class="form-label">Status Pembayaran</label>
-                        <select class="form-select" id="payment_status" name="payment_status" required>
-                            <option value="pending">Pending</option>
-                            <option value="paid">Paid</option>
-                            <option value="failed">Failed</option>
-                        </select>
-                    </div>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer" style="background-color: #FCE4EC;">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary">Update Status</button>
+                    <button type="submit" class="btn btn-primary" style="background-color: #C2185B; border: none;">Update</button>
                 </div>
             </form>
         </div>
@@ -257,30 +179,10 @@ function loadStatistics() {
         .then(response => response.json())
         .then(data => {
             const content = `
-                <div class="col-md-3">
-                    <div class="text-center">
-                        <h4 class="text-primary">${data.total_orders}</h4>
-                        <small class="text-muted">Total Pesanan</small>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="text-center">
-                        <h4 class="text-warning">${data.pending_orders}</h4>
-                        <small class="text-muted">Pending</small>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="text-center">
-                        <h4 class="text-success">${data.delivered_orders}</h4>
-                        <small class="text-muted">Delivered</small>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="text-center">
-                        <h4 class="text-info">Rp${data.total_revenue.toLocaleString()}</h4>
-                        <small class="text-muted">Total Revenue</small>
-                    </div>
-                </div>
+                <div class="col-md-3"><h4 style="color:#C2185B;">${data.total_orders}</h4><small>Total Pesanan</small></div>
+                <div class="col-md-3"><h4 style="color:#ffc107;">${data.pending_orders}</h4><small>Pending</small></div>
+                <div class="col-md-3"><h4 style="color:#198754;">${data.delivered_orders}</h4><small>Selesai</small></div>
+                <div class="col-md-3"><h4 style="color:#0d6efd;">Rp${data.total_revenue.toLocaleString()}</h4><small>Pendapatan</small></div>
             `;
             document.getElementById('statistics-content').innerHTML = content;
             document.getElementById('statistics-card').style.display = 'block';
@@ -293,4 +195,3 @@ function updateStatus(orderId) {
 }
 </script>
 @endsection
-
