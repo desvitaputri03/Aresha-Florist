@@ -266,8 +266,8 @@ class CartController extends Controller
     // Fungsi-fungsi lain tetap ada agar tidak error route not found
     public function showPaymentConfirmation(Order $order) {
         if ($order->user_id !== Auth::id()) abort(403);
-        $bankAccountNumber = '-'; 
-        $bankName = '-';
+        $bankAccountNumber = Setting::getSetting('bank_account_number', '-');
+        $bankName = Setting::getSetting('bank_name', '-');
         return view('cart.payment_confirmation', compact('order', 'bankAccountNumber', 'bankName'));
     }
 

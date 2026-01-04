@@ -42,17 +42,24 @@
                     <div class="mb-4">
                         <label class="small text-muted d-block mb-2">Nama Bank</label>
                         <div class="p-3 bg-white rounded-3 border border-1">
-                            <span class="fw-bold fs-5">{{ $bankName ?? 'Hubungi Admin untuk Info Rekening' }}</span>
+                            <span class="fw-bold fs-5">{{ $bankName !== '-' ? $bankName : 'Hubungi Admin untuk Info Rekening' }}</span>
+                            @if($bankName === '-')
+                                <div class="small text-danger mt-2">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>Admin belum mengatur informasi rekening
+                                </div>
+                            @endif
                         </div>
                     </div>
 
                     <div class="mb-4">
                         <label class="small text-muted d-block mb-2">Nomor Rekening</label>
                         <div class="p-3 bg-white rounded-3 border border-1 d-flex justify-content-between align-items-center">
-                            <span class="fw-bold fs-5 font-monospace">{{ $bankAccountNumber ?? '(Hubungi Admin)' }}</span>
-                            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" onclick="copyToClipboard('{{ $bankAccountNumber ?? '' }}')">
-                                <i class="fas fa-copy me-1"></i>Salin
-                            </button>
+                            <span class="fw-bold fs-5 font-monospace">{{ $bankAccountNumber !== '-' ? $bankAccountNumber : '(Hubungi Admin)' }}</span>
+                            @if($bankAccountNumber !== '-')
+                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" onclick="copyToClipboard('{{ $bankAccountNumber }}')">
+                                    <i class="fas fa-copy me-1"></i>Salin
+                                </button>
+                            @endif
                         </div>
                     </div>
 
