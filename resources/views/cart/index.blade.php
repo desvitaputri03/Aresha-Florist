@@ -40,8 +40,8 @@
                         <div class="cart-item border-bottom pb-4 mb-4">
                             <div class="row align-items-center">
                                 <div class="col-md-2">
-                                    @if($item->product->gambar)
-                                        <img src="{{ asset('storage/'.$item->product->gambar) }}" 
+                                    @if($item->product->images->count() > 0)
+                                        <img src="{{ asset('storage/'.$item->product->images->first()->image_path) }}" 
                                              alt="{{ $item->product->name }}" 
                                              class="img-fluid rounded">
                                     @else
