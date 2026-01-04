@@ -37,19 +37,37 @@
 
                     <div class="mb-3">
                         <label class="small text-muted d-block mb-1">Status Pembayaran</label>
-                        @if ($order->payment_status === 'pending_transfer')
-                            <span class="badge bg-warning text-dark px-3 py-2 rounded-pill">Menunggu Transfer</span>
-                            @if ($order->payment_method === 'transfer')
-                                <div class="mt-2">
-                                    <a href="{{ route('cart.payment.confirm', $order->id) }}" class="btn btn-sm btn-success w-100 rounded-pill">Unggah Bukti TF</a>
-                                </div>
-                            @endif
-                        @elseif ($order->payment_status === 'awaiting_admin_approval')
-                            <span class="badge bg-info text-white px-3 py-2 rounded-pill">Menunggu Verifikasi</span>
-                        @elseif ($order->payment_status === 'paid')
-                            <span class="badge bg-success text-white px-3 py-2 rounded-pill">Lunas</span>
-                        @else
-                            <span class="badge bg-secondary text-white px-3 py-2 rounded-pill">{{ ucfirst($order->payment_status) }}</span>
+                        @php
+                            $paymentStatusMap = [
+                                'pending' => 'Pending',
+                                'pending_transfer' => 'Menunggu Transfer',
+                                'awaiting_admin_approval' => 'Menunggu Verifikasi',
+                                'paid' => 'Lunas',
+                                'failed' => 'Gagal'
+                            ];
+                            $paymentStatusDisplay = $paymentStatusMap[$order->payment_status] ?? ucfirst($order->payment_status);
+                            $badgeClass = match($order->payment_status) {
+                                'pending', 'pending_transfer' => 'bg-warning text-dark',
+                                'awaiting_admin_approval' => 'bg-info text-white',
+                                'paid' => 'bg-success text-white',
+                                'failed' => 'bg-danger text-white',
+                                default => 'bg-secondary text-white'
+                            };
+                        @endphp
+                        <span class="badge {{ $badgeClass }} px-3 py-2 rounded-pill">{{ $paymentStatusDisplay }}</span>
+                        
+                        @if (($order->payment_status === 'pending' || $order->payment_status === 'pending_transfer') && $order->payment_method === 'transfer')
+                            <div class="mt-2">
+                                <a href="{{ route('cart.payment.confirm', $order->id) }}" class="btn btn-sm btn-success w-100 rounded-pill">
+                                    <i class="fas fa-upload me-1"></i>Unggah Bukti Transfer
+                                </a>
+                            </div>
+                        @endif
+                        
+                        @if ($order->payment_status === 'awaiting_admin_approval' && $order->payment_method === 'transfer')
+                            <div class="mt-2 text-muted small">
+                                <i class="fas fa-info-circle me-1"></i>Bukti transfer Anda sedang diverifikasi oleh admin
+                            </div>
                         @endif
                     </div>
 

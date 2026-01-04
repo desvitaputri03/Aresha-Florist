@@ -90,13 +90,29 @@ class OrderController extends Controller
     {
         $request->validate([
             'order_status' => 'required|in:pending,processing,shipped,delivered,cancelled',
-            'payment_status' => 'required|in:pending,paid,failed',
+            'payment_status' => 'nullable|in:pending,paid,failed,pending_transfer,awaiting_admin_approval',
         ]);
 
-        $order->update([
+        $updateData = [
             'order_status' => $request->order_status,
-            'payment_status' => $request->payment_status,
-        ]);
+        ];
+
+        // Only update payment_status if provided
+        if ($request->filled('payment_status')) {
+            $updateData['payment_status'] = $request->payment_status;
+        }
+
+        $order->update($updateData);
+
+        // Check if this is AJAX request
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Status pesanan berhasil diperbarui!',
+                'order_status' => $order->order_status,
+                'payment_status' => $order->payment_status
+            ]);
+        }
 
         return back()->with('success', 'Status pesanan berhasil diperbarui!');
     }

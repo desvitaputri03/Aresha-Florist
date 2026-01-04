@@ -178,6 +178,14 @@ class CartController extends Controller
         try {
             $totalAmount = $this->calculateTotal($cartItems);
             
+            // Determine initial payment status based on payment method
+            $paymentStatus = 'pending';
+            if ($request->payment_method === 'transfer') {
+                $paymentStatus = 'pending_transfer';
+            } elseif ($request->payment_method === 'cash') {
+                $paymentStatus = 'pending';
+            }
+            
             $order = Order::create([
                 'order_number' => 'ORD-' . strtoupper(uniqid()), // Fallback generator
                 'user_id' => Auth::id(),
@@ -191,7 +199,7 @@ class CartController extends Controller
                 'event_type' => $request->event_type ?? 'Umum',
                 'custom_message' => $request->custom_message ?? '-',
                 'payment_method' => $request->payment_method,
-                'payment_status' => 'pending', 
+                'payment_status' => $paymentStatus, 
                 'order_status' => 'pending',
                 'total_amount' => $totalAmount,
                 'grand_total' => $totalAmount, // Ongkir 0
@@ -264,13 +272,30 @@ class CartController extends Controller
     }
 
     public function uploadPaymentProof(Request $request, Order $order) {
-         if ($order->user_id !== Auth::id()) abort(403);
+        if ($order->user_id !== Auth::id()) abort(403);
+        
+        $request->validate([
+            'proof_of_transfer_image' => 'required|image|mimes:jpeg,png,jpg,pdf|max:5120', // 5MB max
+        ], [
+            'proof_of_transfer_image.required' => 'Silakan pilih file bukti transfer',
+            'proof_of_transfer_image.image' => 'File harus berupa gambar atau PDF',
+            'proof_of_transfer_image.mimes' => 'Format file harus JPEG, PNG, JPG, atau PDF',
+            'proof_of_transfer_image.max' => 'Ukuran file maksimal 5MB',
+        ]);
+        
         if ($request->hasFile('proof_of_transfer_image')) {
-            $path = $request->file('proof_of_transfer_image')->store('payment_proofs', 'public');
-            $order->update(['proof_of_transfer_image' => $path, 'payment_status' => 'awaiting_admin_approval']);
-            return redirect()->route('cart.success', $order->id);
+            try {
+                $path = $request->file('proof_of_transfer_image')->store('payment_proofs', 'public');
+                $order->update([
+                    'proof_of_transfer_image' => $path, 
+                    'payment_status' => 'awaiting_admin_approval'
+                ]);
+                return redirect()->route('cart.success', $order->id)->with('success', 'Bukti transfer berhasil diupload! Admin akan memverifikasinya segera.');
+            } catch (\Exception $e) {
+                return back()->with('error', 'Gagal mengupload file. Silakan coba lagi.');
+            }
         }
-        return back();
+        return back()->with('error', 'File tidak ditemukan. Silakan coba lagi.');
     }
 
     public function orderSuccess(Order $order) {

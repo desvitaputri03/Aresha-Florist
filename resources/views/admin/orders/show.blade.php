@@ -231,6 +231,8 @@
                         <label for="payment_status" class="form-label">Status Pembayaran</label>
                         <select class="form-select" id="payment_status" name="payment_status" required>
                             <option value="pending" {{ $order->payment_status == 'pending' ? 'selected' : '' }}>Pending</option>
+                            <option value="pending_transfer" {{ $order->payment_status == 'pending_transfer' ? 'selected' : '' }}>Menunggu Transfer</option>
+                            <option value="awaiting_admin_approval" {{ $order->payment_status == 'awaiting_admin_approval' ? 'selected' : '' }}>Menunggu Verifikasi</option>
                             <option value="paid" {{ $order->payment_status == 'paid' ? 'selected' : '' }}>Paid</option>
                             <option value="failed" {{ $order->payment_status == 'failed' ? 'selected' : '' }}>Failed</option>
                         </select>

@@ -151,24 +151,43 @@
                 <h5 class="modal-title">Update Status Pesanan</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <form id="updateStatusForm" method="POST">
+            <form id="updateStatusForm" method="POST" style="display: none;">
                 @csrf @method('PATCH')
-                <div class="modal-body" style="background-color: #FCE4EC;">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Status Pesanan</label>
-                        <select class="form-select" id="order_status" name="order_status" required>
-                            <option value="pending">Pending</option>
-                            <option value="processing">Processing</option>
-                            <option value="delivered">Delivered</option>
-                            <option value="cancelled">Cancelled</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="modal-footer" style="background-color: #FCE4EC;">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary" style="background-color: #C2185B; border: none;">Update</button>
-                </div>
             </form>
+            <div class="modal-body" style="background-color: #FCE4EC;">
+                <div class="alert alert-info small d-none" id="statusMessage" role="alert"></div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Status Pesanan</label>
+                    <select class="form-select" id="order_status" name="order_status" required>
+                        <option value="">-- Pilih Status --</option>
+                        <option value="pending">Pending</option>
+                        <option value="processing">Processing</option>
+                        <option value="shipped">Shipped</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Status Pembayaran (Opsional)</label>
+                    <select class="form-select" id="payment_status" name="payment_status">
+                        <option value="">-- Tidak diubah --</option>
+                        <option value="pending">Pending</option>
+                        <option value="pending_transfer">Menunggu Transfer</option>
+                        <option value="awaiting_admin_approval">Menunggu Verifikasi</option>
+                        <option value="paid">Paid</option>
+                        <option value="failed">Failed</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer" style="background-color: #FCE4EC;">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-primary" id="submitStatusBtn" style="background-color: #C2185B; border: none;">
+                    <span class="spinner-border spinner-border-sm me-2 d-none" id="loadingSpinner" role="status" aria-hidden="true"></span>
+                    <span id="submitBtnText">Update</span>
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -189,9 +208,86 @@ function loadStatistics() {
         });
 }
 
+let currentOrderId = null;
+
 function updateStatus(orderId) {
-    document.getElementById('updateStatusForm').action = `/admin/orders/${orderId}/status`;
+    currentOrderId = orderId;
+    // Reset form
+    document.getElementById('order_status').value = '';
+    document.getElementById('payment_status').value = '';
+    document.getElementById('statusMessage').textContent = '';
+    document.getElementById('statusMessage').classList.add('d-none');
+    document.getElementById('submitBtnText').textContent = 'Update';
+    document.getElementById('loadingSpinner').classList.add('d-none');
+    document.getElementById('submitStatusBtn').disabled = false;
+    
     new bootstrap.Modal(document.getElementById('updateStatusModal')).show();
 }
+
+// Handle submit button click
+document.getElementById('submitStatusBtn').addEventListener('click', function() {
+    const orderStatus = document.getElementById('order_status').value;
+    const paymentStatus = document.getElementById('payment_status').value;
+    
+    if (!orderStatus) {
+        alert('Pilih status pesanan terlebih dahulu!');
+        return;
+    }
+    
+    // Show loading state
+    this.disabled = true;
+    document.getElementById('loadingSpinner').classList.remove('d-none');
+    document.getElementById('submitBtnText').textContent = 'Menyimpan...';
+    
+    // Prepare form data
+    const formData = new FormData();
+    formData.append('_token', document.querySelector('[name="_token"]').value);
+    formData.append('_method', 'PATCH');
+    formData.append('order_status', orderStatus);
+    if (paymentStatus) {
+        formData.append('payment_status', paymentStatus);
+    }
+    
+    // Send AJAX request
+    fetch(`/admin/orders/${currentOrderId}/status`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        },
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Network response was not ok');
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            // Show success message
+            const messageDiv = document.getElementById('statusMessage');
+            messageDiv.textContent = '✓ ' + data.message;
+            messageDiv.classList.remove('d-none', 'alert-danger');
+            messageDiv.classList.add('alert-success');
+            
+            // Reload page after 1.5 seconds
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
+        } else {
+            throw new Error(data.message || 'Gagal memperbarui status');
+        }
+    })
+    .catch(error => {
+        const messageDiv = document.getElementById('statusMessage');
+        messageDiv.textContent = '✗ ' + error.message;
+        messageDiv.classList.remove('d-none', 'alert-success');
+        messageDiv.classList.add('alert-danger');
+        
+        // Reset button
+        this.disabled = false;
+        document.getElementById('loadingSpinner').classList.add('d-none');
+        document.getElementById('submitBtnText').textContent = 'Update';
+    });
+});
 </script>
 @endsection
