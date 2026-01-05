@@ -222,7 +222,7 @@
         <div class="row g-4">
             @foreach($relatedProducts as $relatedProduct)
             <div class="col-lg-3 col-md-6">
-                <div class="product-card-premium fade-in-up bg-white h-100 shadow-sm">
+                <div class="product-card-premium fade-in-up bg-white shadow-sm">
                     <a href="{{ route('products.show', $relatedProduct->id) }}" class="card-img-wrapper d-block position-relative overflow-hidden">
                         @if($relatedProduct->images->count() > 0)
                             <img src="{{ asset('storage/'.$relatedProduct->images->first()->image_path) }}"
@@ -237,8 +237,12 @@
                             <div class="premium-badge discount">-{{ round((($relatedProduct->harga - $relatedProduct->harga_diskon) / $relatedProduct->harga) * 100) }}%</div>
                         @endif
                     </a>
-                    <div class="p-4 text-center">
-                        <h5 class="product-title fw-bold mb-3">{{ $relatedProduct->name }}</h5>
+                    <div class="p-3">
+                        <h5 class="product-title fw-bold mb-2 text-center">
+                            <a href="{{ route('products.show', $relatedProduct->id) }}" class="text-decoration-none text-dark">
+                                {{ $relatedProduct->name }}
+                            </a>
+                        </h5>
                         <div class="product-price mb-3">
                             @if($relatedProduct->harga_diskon)
                                 <span class="price-new">Rp {{ number_format($relatedProduct->harga_diskon, 0, ',', '.') }}</span>
@@ -442,6 +446,102 @@ document.querySelectorAll('.fade-in-up').forEach(el => {
     /* Sesuaikan lebar input group agar angka terlihat jelas */
     .action-buttons .input-group {
         width: 140px; /* Anda bisa menyesuaikan nilai ini jika diperlukan */
+    }
+
+    /* Product Card Styling */
+    .product-card-premium {
+        border-radius: 12px;
+        border: 1px solid rgba(0,0,0,.08);
+        transition: all 0.3s ease;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-card-premium:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 24px rgba(0,0,0,0.15) !important;
+    }
+
+    .card-img-wrapper {
+        position: relative;
+        overflow: hidden;
+        height: 300px;
+        background: #f8f9fa;
+    }
+
+    .product-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+    }
+
+    .product-card-premium:hover .product-img {
+        transform: scale(1.1);
+    }
+
+    .premium-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: #dc3545;
+        color: white;
+        padding: 8px 15px;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 14px;
+        z-index: 10;
+        box-shadow: 0 4px 10px rgba(220, 53, 69, 0.4);
+    }
+
+    .product-title {
+        font-size: 1.1rem;
+        color: #2c3e50;
+        min-height: 50px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .product-price {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .price-new {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #e91e63;
+    }
+
+    .price-old {
+        font-size: 1rem;
+        color: #999;
+        text-decoration: line-through;
+    }
+
+    .btn-show-product {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    .btn-show-product:hover {
+        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(102, 126, 234, 0.4);
     }
 </style>
 @endsection
